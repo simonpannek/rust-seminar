@@ -3,8 +3,8 @@
 
 \section{Networking in Rust}
 Rust is an open-source programming language developed by Mozilla introducing memory-safety without a runtime or garbage
-collection. Its standard library provides networking primitives for basic TPC/UDP communication, which allows basic
-socket communication and error handeling out of the box. \cite{rust-language}
+collection. Its standard library provides networking primitives for basic TPC/UDP communication, which allows socket
+communication and error handeling out of the box. \cite{rust-language}
 
 \subsection{Advantages of using Rust for networking}
 There are usually different approaches when it comes to picking a language for networking, especially if you want to
@@ -16,14 +16,14 @@ are interpreted, they often perform much slower compared to executing compiled b
 have to get translated by the interpreter before being executed.
 
 If speed and scalability is an important factor (as it is most of the time), a compiled language can be a good choice.
-This is the reason why many networking libraries are writting in C and C++. Those two languages do not guarantee memory
+This is the reason why many networking libraries are written in C or C++. Those two languages do not guarantee memory
 safety. If a programmer makes a mistake, the compiler does not check for undefined behavior and just falls back to some
-default action. This can lead to corruption in the memory.
+default action and can lead to corruption of memory.
 
-This can particularly be a problem when working with networking applications as you often have to read and write to
+This can particularly be a problem when working with network applications as you often have to read and write to
 buffers concurrently. If incomming information is just written to a buffer with no checks for the buffer size, an
-attacker might be able to overwrite data in the memory and change the flow of the program. This is called a Buffer
-Overflow attack and can lead to an attacker being able to control the host running the network application.
+attacker might be able to overwrite data in the memory and change the flow of the program. This is called a buffer
+overflow attack and can lead to an attacker being able to control the host running the network application.
 \cite{821514}
 
 Another problem with C and C++ is thread safety. Parallelization and preventing race conditions is completly up to the
@@ -32,11 +32,29 @@ in production with a lot of concurrent access and a higher load on the server.
 
 Rust on the other hand is also a compiled language, but the compiler guarantees for memory- and thread-safety. This
 means it profits from the fast speeds compiled languages have and also prevents most of the vulnerabilities mentioned
-above from happening, because Rust rejects to compile code which could introduce such issues. To effeciently check for
-any unsafe memory accesses or possible data races, Rust uses the system of ownership, borrowing and lifetimes.
+above from happening, thanks to Rust rejecting to compile code which could introduce such issues. To effeciently check
+for any unsafe memory accesses or possible data races, Rust uses the system of ownership, borrowing and lifetimes.
 
 \subsection{Ownership, Borrowing and Lifetimes}
-Text
+In Rust, a part of the code can own a piece of memory. When a function is called with an owned value, the piece of
+memory gets moved into that function and the code calling the function is not allowed to access it after the function
+call. Often a function does not need complete access to a value. In the case the function can borrow a reference to the
+value. This enables the code calling the function to still be able to access the piece of memory afterwards.
+There are also mutable references in Rust, but it is only allowed to have a single mutable reference to a variable at
+once.
+
+This can be really useful when working with network applications as this prevents the occurence of data races if a
+thread tries to read or write to a buffer while another thread is already writing to it.
+
+The compiler of Rust does not check for illegal buffer accesses, but other than in C the program exits with an error
+code (this is called a panic) if the program tries to access an index which is out of bounds. This does not prevent
+buffer overflows to take place in advance, but at least the program stops executing immediately instead of letting it
+happen and possibly introducing security issues.
+
+Variables usually have a lifetime determined by the code block it was created. If a variable gets out of scope, the
+corresponding piece of memory is freed automatically. If a value gets moved into another function, its lifetime changes
+with it. Combined with the system of ownership, this can prevent dangling references, illegal memory accesses and
+memory leaks from happening at compile time. \cite{c15safe}
 
 \subsection{TCP and UDP communication}
 Text
