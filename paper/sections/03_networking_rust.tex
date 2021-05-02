@@ -56,5 +56,116 @@ corresponding piece of memory is freed automatically. If a value gets moved into
 with it. Combined with the system of ownership, this can prevent dangling references, illegal memory accesses and
 memory leaks from happening at compile time. \cite{c15safe}
 
-\subsection{TCP and UDP communication}
-Text
+\subsection{TCP communication}
+The Transmission Control Protocol (TCP) is used for reliable inter-process communication between to systems connected
+through a network. You can use it to send a continuous stream of octets to another host. In order to check whether the
+data was received by the other host, it assigns a sequence number to each octet sent and waits for an acknowledgment
+(ACK) from the receiving user. If no ACK is received in a certain amount of time, the data is sent again. The receiving
+host can also use the sequence number to eliminate duplicates and order the segments the right way. \cite{rfc793}
+
+The module \rust{std::net} of the Rust standard library already implements this protocol, so you can work with those
+abstractions independent of what plattform the code is currently running. The following piece of code demonstrates
+how messages sent to a \rust{std::net::TcpStream} can be received and printed for the user to read:
+
+\begin{minted}{Rust}
+let mut reader = BufReader::new(&stream);
+
+loop {
+    let mut buf = String::new();
+
+    match reader.read_line(&mut buf) {
+        Ok(size) => {
+            if size == 0 {
+                break;
+            }
+
+            print!("{}", buf);
+        }
+        Err(e) => {
+            eprintln!("{}", e);
+            stream.shutdown(Both)?;
+            break;
+        }
+    }
+}
+\end{minted}
+
+The variable \rust{stream} has the type \rust{TcpStream} and represents a connection between two hosts. Data is being
+transmitted when you write it to the stream and the other host can read the received information by reading from the
+stream on their side.
+
+As networking functions can fail due to multiple reasons (by instance network failure, package loss, insufficent
+permissions, etc.), those functions usually return an instance of the enum \rust{std::io::Result<T>}. If the function
+call was successful, the returned value corresponds to the returned data, wrapped by the enum variant \rust{Ok(T)}. If
+the function call failed, the returned value corresponds to the error value, wrapped by the enum variant
+\rust{Err(Error)}.
+
+In \textcolor{orange}{line 1} a reader of the type \rust{std::io::BufReader} is created. It can be inefficient to read
+from the stream with small and repeated calls. In this example we want to read whole lines from the stream, so the
+reader can maintain the data in its in-memory buffer until a whole line was received.
+
+Now the example continues to loop and wait for a new message until the connection is closed. \rust{buf} is a simple,
+mutable \rust{String} new messages get written into. In \textcolor{orange}{line 6} the result of the call
+\rust{reader.read_line(&mut buf)} is matched.
+
+In case the call was successful, the received line is written into \rust{buf} and the program enters the first match
+arm. The variable \rust{size} equals the length of the received data. If this is equal to zero it means that the
+connection was closed and we can break out of the loop. Otherwise the content of the buffer is written to the command
+line using the \rust{print!} macro.
+
+In case reading has failed, the error value is returned and the program enters the second match arm. Here the error
+message is printed to the error output and the program tries to shutdown the stream using
+\rust{stream.shutdown(Both)?}. The method takes a enum of the type \rust{std::net::Shutdown} as an argument which
+decides, how the stream should get closed. \rust{Both} means that both the reading and the writing portions of the
+stream should be shut down. The \rust{?} operator tries to unwrap the \rust{Result} returned by the function and
+returns immediately if the result is equal to an \rust{Err}. If the unwrap was successful, the program simply breaks
+out of the loop.
+
+The example above can be used to handle a connection to a single host until the connection is closed. To actually run
+the code, we still have to initialize the stream in the first place. To make everything simpler, let us assume that
+the example above is wrapped into a method called \rust{handle_client(stream: std::io::TcpStream)}:
+
+\begin{minted}{Rust}
+let listener = TcpListener::bind(ADDRESS)
+    .expect("Bind to address");
+
+for stream in listener.incoming() {
+    if let Ok(stream) = stream {
+        handle_client(stream)
+            .expect("Handle client");
+    }
+}
+\end{minted}
+
+First a listener of the type \rust{std::net::TcpListener} has to be created by binding it to \rust{ADDRESS}. The
+constant \rust{ADDRESS} has the type \rust{&str} and contains the address and port (e.g. "127.0.0.1:8080") on which the
+server should listen for new incomming connections. The method \rust{expect} is another way to handle the return type
+\rust{Result}.
+
+\begin{minted}{Rust}
+let mut stream = TcpStream::connect(ADDRESS)?;
+
+loop {
+    let mut buf = String::new();
+
+    match stdin().read_line(&mut buf) {
+        Ok(_) => {
+            if buf.trim() != "exit" {
+                stream.shutdown(Both)?;
+                break;
+            }
+
+            let bytes = buf.as_bytes();
+
+            stream
+                .write_all(bytes)
+                .expect("Writing");
+        }
+        Err(e) => {
+            eprintln!("{}", e);
+            stream.shutdown(Both)?;
+            break;
+        }
+    }
+}
+\end{minted}

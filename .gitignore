@@ -3,4 +3,8 @@ paper/build/*
 # Uncomment later to add the pdf to the repo
 #!paper/build/*.pdf
 
+paper/indent.log
+
+paper/_minted-main
+
 examples/*/target/
