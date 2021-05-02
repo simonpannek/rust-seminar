@@ -2,3 +2,5 @@ paper/build/*
 
 # Uncomment later to add the pdf to the repo
 #!paper/build/*.pdf
+
+examples/*/target/
