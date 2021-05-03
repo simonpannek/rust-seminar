@@ -19,7 +19,7 @@ fn handle_client(stream: TcpStream) -> std::io::Result<()> {
                     break;
                 }
 
-                // Print output
+                // Print received data
                 print!("{}", buf);
             }
             Err(e) => {
