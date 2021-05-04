@@ -21,7 +21,7 @@ safety. If a programmer makes a mistake, the compiler does not check for undefin
 default action and can lead to corruption of memory.
 
 This can particularly be a problem when working with network applications as you often have to read and write to
-buffers concurrently. If incomming information is just written to a buffer with no checks for the buffer size, an
+buffers concurrently. If incoming information is just written to a buffer with no checks for the buffer size, an
 attacker might be able to overwrite data in the memory and change the flow of the program. This is called a buffer
 overflow attack and can lead to an attacker being able to control the host running the network application.
 \cite{821514}
@@ -60,11 +60,11 @@ The Transmission Control Protocol (TCP) is used for reliable inter-process commu
 through a network. You can use it to send a continuous stream of octets to another host. In order to check whether the
 data was received by the other host, it assigns a sequence number to each octet sent and waits for an acknowledgment
 (ACK) from the receiving user. If no ACK is received in a certain amount of time, the data is sent again. The receiving
-host can also use the sequence number to eliminate duplicates and order the segments the right way. \cite{rfc793}
+host can also use the sequence number to eliminate duplicates and order the segments the right way. \cite{RFC0793}
 
 The module \rust{std::net} of the Rust standard library already implements this protocol, so you can work with those
 abstractions independent of what plattform the code is currently running. To demonstrate this in a better way, we are
-going to implement a small TCP server which accepts connections and prints incomming messages as well as a TCP client,
+going to implement a small TCP server which accepts connections and prints incoming messages as well as a TCP client,
 which connects to our server and sends messages from the command line to it. The following piece of code demonstrates
 how messages sent to a \rust{std::net::TcpStream} can be received and printed for the user to read:
 
@@ -140,7 +140,7 @@ for stream in listener.incoming() {
 
 First a listener of the type \rust{std::net::TcpListener} has to be created by binding it to \rust{ADDRESS}. The
 constant \rust{ADDRESS} has the type \rust{&str} and contains the address and port (e.g. "127.0.0.1:8080") on which the
-server should listen for new incomming connections. The method \rust{expect} is another way to handle the return type
+server should listen for new incoming connections. The method \rust{expect} is another way to handle the return type
 \rust{Result}. It tries to unwrap the \rust{Ok} value if there is any and panics with a message including the argument
 and the \rust{Err} value if it fails.
 
@@ -225,4 +225,100 @@ in a certain timeframe to check if the other side is still connected. If the tim
 certain timeframe, the connection was probably lost and the stream can be closed.
 
 \subsection{UDP communication}
-Text
+The User Datagram Protocol (UDP) is less reliable than the Transmission Control Protocol. Differently to TCP, UDP tries
+to send messages to other programs with a minimal amount of protocol mechanism. This means it offers no protection
+against package duplication and does not check whether the sent data arrived and if it did in what order. As a
+consequence you do not have to listen for new hosts and actively establish a connection to another host before sending
+any data. UDP is commonly used, if you do not need reliable delivery of streams and small amount of package loss does
+not matter. A typical example for UDP applications would be media streaming. \cite{RFC0768}
+
+When trying to communicate over UDP in Rust, you can use the struct \rust{std::net::UdpSocket}. It provides methods to
+bind to an address, send and receive data. As we do not need a server to listen for new connections, the following
+example will be split into a sender who sends data and into a receiver who receives those messages. Here is an example
+how the code on the receiving end could look like:
+
+\begin{minted}{Rust}
+let socket = UdpSocket::bind(ADDRESS)?;
+
+loop {
+    let mut buf = [0u8; 4096];
+
+    match socket.recv_from(&mut buf) {
+        Ok(_) => {
+            let msg = from_utf8(&buf)
+                .expect("Convert data");
+
+            print!("{}", msg);
+        }
+        Err(e) => {
+            eprintln!("{}", e);
+            break;
+        }
+    }
+}
+\end{minted}
+
+In the beginning a socket is created by calling the \rust{bind} method and giving the address the socket should listen
+to as an argument. The result is unwrapped using \rust{?} and then moved into a variable. After that the program keeps
+looping until an error occurs or it is closed explicitly. As there are not connections between two hosts, the socket
+cannot close when a connection is lost. Another difference to using TCP is that the socket is able to listen to
+incoming messages of multiple hosts.
+
+When trying to receive an incoming message we first have to initialize a buffer to save the data of the other host.
+A \rust{UdpSocket} does not implement the trait \rust{std::io::Read}. This means you cannot create a \rust{BufReader}
+instance in order to read the data from the socket. Alternatively we have to read the messages as bytes and the parse
+them into a String later. The variable \rust{buf} in this case is a byte slice of the length \rust{4096}. If you know
+the size of the data beforehand, you can adjust the buffer length according to this, but as we do know anything about
+the data we are going to receive, this example uses the size of the smallest page size in most computer architectures.
+If a message is larger than the buffer, it is going to get cut off.
+
+In \textcolor{orange}{line 6} the method \rust{recv_from} is used to read the next arriving package into \rust{buf}. If
+the call was successful, the program enters the first match arm, tries to convert the byte slice into a \rust{&str} and
+panics in case of a failure using the \rust{expect} method. After that the message gets printed to the command line. If
+the call has failed, the program prints the error and breaks out of the loop.
+
+To send data to this receiver, you cannot just use the TCP client implemented before as it uses a differnt protocol. In
+the following example you can see a small implementation of an UDP sender:
+
+\begin{minted}{Rust}
+let socket = UdpSocket::bind("0.0.0.0:0")?;
+
+loop {
+    let mut buf = String::new();
+
+    match stdin().read_line(&mut buf) {
+        Ok(_) => {
+            if buf.trim() == "exit" {
+                break;
+            }
+
+            let bytes = buf.as_bytes();
+
+            socket
+                .send_to(bytes, ADDRESS)
+                .expect("Sending");
+        }
+        Err(e) => {
+            eprintln!("{}", e);
+            break;
+        }
+    }
+}
+\end{minted}
+
+Here the socket is not bound to the address of the host we want to send messages to. Rather the \rust{bind} method is
+given the static address "0.0.0.0:0". This is because of the UDP protocol. As there is no set connection between two
+hosts, our sender needs an own address and port in order to receive answers from the other host. By giving the
+\rust{bind} method the static address of "0.0.0.0:0" as an argument, we implicitly state that the host should use its
+own ip address and choose any free, available port it is allowed to use. It would also work to set the port explicitly,
+but this risks choosing a port which is already used.
+
+From this point on the sender is really similar to the TCP client: In a continous loop the user input form the command
+line is written into \rust{buf}.
+
+If the reading was successful, the input is first trimmed and then checked whether it
+matches "exit". If that is the case, the program simply breaks out of the loop. We do not have to shutdown any stream
+here, as there is no connection in the first place. Otherwise the input is converted into bytes using the method
+\rust{as_bytes} and then send to the other host by calling \rust{send_to} on the socket, giving it the byte slice and
+the address of the other host as arguments. The result of this method call is again unwrapped using \rust{expect} to
+panic in case of an error.
