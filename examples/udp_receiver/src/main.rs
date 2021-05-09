@@ -6,7 +6,7 @@ fn main() -> std::io::Result<()> {
     let socket = UdpSocket::bind(ADDRESS)?;
 
     loop {
-        let mut buf = [0; 4096];
+        let mut buf = [0; 1500];
 
         match socket.recv_from(&mut buf) {
             Ok(_) => {

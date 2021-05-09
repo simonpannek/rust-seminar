@@ -13,12 +13,11 @@ fn handle_client(stream: TcpStream) -> std::io::Result<()> {
         let mut buf = String::new();
 
         match reader.read_line(&mut buf) {
-            Ok(size) => {
+            Ok(0) => {
                 // Empty buffer means EOF (closed connection)
-                if size == 0 {
-                    break;
-                }
-
+                break;
+            }
+            Ok(_) => {
                 // Print received data
                 print!("{}", buf);
             }

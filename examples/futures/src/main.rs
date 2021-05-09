@@ -15,5 +15,6 @@ async fn main() {
         println!("Finished future2");
     };
 
+    // Join both futures
     join!(future1, future2);
 }
