@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+
 \usepackage[outputdir=build]{minted}
 
 % Overwrite minted style
@@ -13,9 +14,13 @@
     linenos=true,
     breaklines=true,
     frame=lines,
-    xleftmargin=10pt
+    xleftmargin=10pt,
+    escapeinside=''
 }
+
 \usemintedstyle{manni}
+
+\definecolor{macro}{rgb}{0.80, 0.00, 1.00}
 
 % Commands
 \newcommand{\rust}[1]{\mintinline{rust}{#1}}

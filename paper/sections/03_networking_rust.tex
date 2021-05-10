@@ -24,14 +24,14 @@ This can particularly be a problem when working with network applications as you
 buffers concurrently. If incoming information is just written to a buffer with no checks for the buffer size, an
 attacker might be able to overwrite data in the memory and change the flow of the program. This is called a buffer
 overflow attack and can lead to an attacker being able to control the host running the network application.
-\cite{821514}
+\cite{c00buffer}
 
 Another problem with C and C++ is thread safety. Parallelization and preventing race conditions is completly up to the
 programmer. When sharing data between multiple threads without proper synchronization, many errors will only occur when
 in production with a lot of concurrent access and a higher load on the server.
 
 Rust on the other hand is also a compiled language, but the compiler guarantees for memory- and thread-safety. This
-means it profits from the fast speeds compiled languages have and also prevents most of the vulnerabilities mentioned
+means it profits from the fast speed compiled languages have and also prevents most of the vulnerabilities mentioned
 above from happening, thanks to Rust rejecting to compile code which could introduce such issues. To effeciently check
 for any unsafe memory accesses or possible data races, Rust uses the system of ownership, borrowing and lifetimes.
 
@@ -75,13 +75,8 @@ loop {
     let mut buf = String::new();
 
     match reader.read_line(&mut buf) {
-        Ok(size) => {
-            if size == 0 {
-                break;
-            }
-
-            print!("{}", buf);
-        }
+        Ok(0) => break,
+        Ok(_) => print!("{}", buf),
         Err(e) => {
             eprintln!("{}", e);
             stream.shutdown(Both)?;
@@ -241,7 +236,7 @@ how the code on the receiving end could look like:
 let socket = UdpSocket::bind(ADDRESS)?;
 
 loop {
-    let mut buf = [0u8; 4096];
+    let mut buf = [0u8; 1500];
 
     match socket.recv_from(&mut buf) {
         Ok(_) => {
@@ -267,17 +262,17 @@ incoming messages of multiple hosts.
 When trying to receive an incoming message we first have to initialize a buffer to save the data of the other host.
 A \rust{UdpSocket} does not implement the trait \rust{std::io::Read}. This means you cannot create a \rust{BufReader}
 instance in order to read the data from the socket. Alternatively we have to read the messages as bytes and the parse
-them into a String later. The variable \rust{buf} in this case is a byte slice of the length \rust{4096}. If you know
+them into a String later. The variable \rust{buf} in this case is a byte slice of the length \rust{1500}. If you know
 the size of the data beforehand, you can adjust the buffer length according to this, but as we do know anything about
-the data we are going to receive, this example uses the size of the smallest page size in most computer architectures.
-If a message is larger than the buffer, it is going to get cut off.
+the data we are going to receive, this example uses the size of a typical UDP MTU (Maximum Transmission Unit). If a
+message is larger than the buffer, it is going to get cut off.
 
 In \textcolor{orange}{line 6} the method \rust{recv_from} is used to read the next arriving package into \rust{buf}. If
 the call was successful, the program enters the first match arm, tries to convert the byte slice into a \rust{&str} and
 panics in case of a failure using the \rust{expect} method. After that the message gets printed to the command line. If
 the call has failed, the program prints the error and breaks out of the loop.
 
-To send data to this receiver, you cannot just use the TCP client implemented before as it uses a differnt protocol. In
+To send data to this receiver, you cannot just use the TCP client implemented before as it uses a different protocol. In
 the following example you can see a small implementation of an UDP sender:
 
 \begin{minted}{Rust}

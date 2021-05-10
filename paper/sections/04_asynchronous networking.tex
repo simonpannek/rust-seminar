@@ -2,5 +2,142 @@
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
 \section{Asynchronous networking using Tokio}
-This document is a model and instructions for LaTeX.
-Please observe the conference page limits.
+In the chapter before basic examples for TCP and UDP communication in Rust were shown. In those programs the current
+thread was blocked when waiting for new connections or incoming messages. This not only results into the program having
+to wait for a new message to continue executing the code, it also means that you have to create a new thread for each
+connection, if you want to listen to multiple connections at once. This principle is called sequential programming. In
+contrast to that there are no blocking functions in asynchronous programming. Instead results are wrapped in so called
+futures which represent a result of an otherwise blocking function. This result can be unwrapped when it is actually
+needed instead of waiting for the execution in advance. \cite{c18network}
+
+\subsection{The tokio crate}
+The core library of Rust is kept very small. Instead it offers a package manager called cargo for easy import of third
+party packages. This way those extensions are not bound to the release cycle of Rust and also breaking changes will just
+affect one single package instead of the whole library. For compatibility reasons a project can keep using an older
+version of a package while upgrading the standard library. The packages of Rust are called crates.
+
+A crate is similar to a binary or library. You can add the name and the version to the dependencies of a project in
+order to import it. If you do not want to compile and include a whole library, some crates also offer flags deciding
+which parts of the library should be included.
+
+To introduce asynchronous programming to Rust, you usually want to use a crate which enables async methods. In this
+chapter the crate "tokio" is used. As the documentation \cite{tokio-doc} states, tokio is a runtime for writing
+reliable network applications. It offers tools for working with asynchronous tasks as well as APIs for typical blocking
+operations suchs as sockets and filesystem operations.
+
+A task in the context of a tokio program is a non-blocking piece of code. You can use the \rust{tokio::task::spawn}
+method to schedule the task on the Tokio runtime and use \rust{await} to wait for the returned value. This is a typical
+behavior in asynchronous programming and you can compare a task to a promise in programming languages like JavaScript.
+
+The tokio runtime consists out of three major parts: An I/O event loop, which handles I/O events and dispatches them to
+the tasks which are waiting for them, a timer to run tasks after a certain period of time and  a scheduler, which
+actually executes the tasks on the different threads. To enable the tokio runtime, you can mark the main function with
+the \rust{async} keyword and add the \mintinline{rust}{#[tokio::main]} macro above.
+
+The scheduler swaps around all tasks which need to be run. This means there can be more tasks than threads whilst still
+allowing concurrent execution of all tasks. To tell the scheduler that the program is currently waiting for another
+task to finish before it can continue running, you can call \rust{await} on the method. This effectively stops the
+execution of the current task, waits for the other task to finish and then unwraps the returned result. Contrary to an
+execution without the tokio runtime, the scheduler knows when the current task can continue running and uses the
+otherwise unused CPU time by letting another task run instead.
+
+\subsection{Programming with futures}
+Text
+
+Let us take a look at a small demonstration of futures:
+
+\begin{minted}{Rust}
+#[tokio::main]
+async fn main() {
+    let future1 = async move {
+        println!("Started future1");
+        sleep(Duration::from_secs(5))
+            .await;
+        println!("Finished future1");
+    };
+
+    let future2 = async move {
+        println!("Started future2");
+        sleep(Duration::from_secs(3))
+            .await;
+        println!("Finished future2");
+    };
+
+    '\textcolor{macro}{join!}'(future1, future2);
+}
+\end{minted}
+
+As you can see, the main function is marked as \rust{async} and the tokio macro is used to create a Runtime for our
+program to run in. Next, the variable \rust{future1} is being created. (TODO: Note what await does)
+
+\subsection{Asynchronous TCP networking}
+Text
+
+\begin{minted}{Rust}
+let listener = TcpListener::bind(ADDRESS).await?;
+
+loop {
+    let (stream, _) = listener.accept().await?;
+
+    handle_client(stream).await?;
+}
+\end{minted}
+
+\begin{minted}{Rust}
+tokio::spawn(async move {
+    let mut reader = BufReader::new(&mut stream);
+
+    loop {
+        let mut buf = String::new();
+
+        match reader
+            .read_line(&mut buf).await {
+            Ok(0) => break,
+            Ok(size) => print!("{}", buf),
+            Err(e) => {
+                eprintln!("{}", e);
+                stream
+                    .shutdown()
+                    .await
+                    .expect("Shutdown");
+                break;
+            }
+        }
+    }
+});
+\end{minted}
+
+\begin{minted}{Rust}
+let mut stream = TcpStream::connect(ADDRESS).await?;
+
+let mut reader = BufReader::new(stdin());
+
+loop {
+    let mut buf = String::new();
+
+    match reader
+        .read_line(&mut buf).await {
+        Ok(_) => {
+            if buf.trim() == "exit" {
+                stream
+                    .shutdown()
+                    .await?;
+                break;
+            }
+
+            let bytes = buf.as_bytes();
+
+            stream
+                .write_all(bytes)
+                .await
+                .expect("Writing");
+        }
+        Err(e) => {
+            eprintln!("{}", e);
+            stream.shutdown().await?;
+            break;
+        }
+    }
+}
+\end{minted}
+
