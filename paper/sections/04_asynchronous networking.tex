@@ -47,28 +47,75 @@ Text
 Let us take a look at a small demonstration of futures:
 
 \begin{minted}{Rust}
+async fn async_function() {
+    println!("Started task1");
+    sleep(Duration::from_secs(5))
+        .await;
+    println!("Finished task1");
+}
+
 #[tokio::main]
 async fn main() {
-    let future1 = async move {
-        println!("Started future1");
-        sleep(Duration::from_secs(5))
-            .await;
-        println!("Finished future1");
-    };
+    let future1 = async_function();
 
-    let future2 = async move {
-        println!("Started future2");
+    let future2 = async {
+        println!("Started task2");
         sleep(Duration::from_secs(3))
             .await;
-        println!("Finished future2");
+        println!("Finished task2");
     };
 
     '\textcolor{macro}{join!}'(future1, future2);
 }
 \end{minted}
 
-As you can see, the main function is marked as \rust{async} and the tokio macro is used to create a Runtime for our
-program to run in. Next, the variable \rust{future1} is being created. (TODO: Note what await does)
+The declared types of functions play an important role when working with tokio. This is the reason why the example
+above also includes the entire function definitions.
+
+As you can see, the main function is marked as \rust{async} and the tokio macro is used to create a runtime for our
+program to run in. Next, the asynchronous function \rust{async_function} is called. The value returned by the function
+has the type \rust{std::future::Future}, which wraps the value going to be returned after the computation. The
+\rust{Future} is saved in the variable \rust{future1}. This way the tokio runtime actually decides when to evaluate the
+function. If \rust{async_function} was not marked as an asynchronous function, the main thread executing the program
+would enter the function, completely evaluate it and after that continue executing the main function.
+
+The type of \rust{future2} is also a \rust{Future}, the only difference being that it uses an \rust{async} block
+instead of an extra function to define the asynchronous code.
+
+In the end the macro \nohighlight{join!} is used to wait for both futures to complete while executing them
+concurrently.
+
+Both functions first print a short message, that they have started executing, then they sleep a certain amount of time
+using \rust{tokio::time::sleep} and then print that they have stopped executing. The key part in this is, that the
+function wrapped by \rust{future1} is called first and sleeps for 5 seconds, the function wrapped by \rust{future2} is
+called afterwards and only sleep for three.
+
+In a blocking environment it would result the program to take more than eight seconds to execute, because first the
+returned value of \rust{future1} is evaluated and only after that the value of \rust{future2}. This way, the output
+would look like this:
+
+\begin{minted}[frame=lines]{TeX}
+Started task1
+Finished task1
+Started task2
+Finished task2
+\end{minted}
+
+The only way to avoid the synchronous execution is by explicitly starting two threads and executing both tasks
+concurrently. If multiple tasks have to run in parallel and include a lot of blocking operations, you usually do not
+want to create a thread for each task as the creation of tasks adds a lot of overhead to the program.
+
+In an asynchronous environment on the other hand, the scheduler swaps the execution when the program reaches an
+\rust{await} point. This way, the sleep function does not block the entire program flow and the function wrapped by
+\rust{future2} finishes first, even if only executing on one thread. The resulting output of the program looks like
+this:
+
+\begin{minted}[frame=lines]{TeX}
+Started task1
+Started task2
+Finished task2
+Finished task1
+\end{minted}
 
 \subsection{Asynchronous TCP networking}
 Text

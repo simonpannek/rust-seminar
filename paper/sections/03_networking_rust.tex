@@ -106,7 +106,7 @@ mutable \rust{String} new messages get written into. In \textcolor{orange}{line 
 In case the call was successful, the received line is written into \rust{buf} and the program enters the first match
 arm. The variable \rust{size} equals the length of the received data. If this is equal to zero it means that the
 connection was closed and we can break out of the loop. Otherwise the content of the buffer is written to the command
-line using the \rust{print!} macro.
+line using the \nohighlight{print!} macro.
 
 In case reading has failed, the error value is returned and the program enters the second match arm. Here the error
 message is printed to the error output and the program tries to shutdown the stream using
