@@ -4769,7 +4769,7 @@ between column types.}%
         \ifCLASSOPTIONtechnote%
            \newpage\global\@topnum\z@ \@maketitle\@IEEEstatictitlevskip\@IEEEaftertitletext%
         \else
-           \twocolumn[{\IEEEquantizevspace{\@maketitle}[\IEEEquantizedisabletitlecmds]{0pt}[-\topskip]{\baselineskip}{\@IEEENORMtitlevspace}{\@IEEEMINtitlevspace}\@IEEEaftertitletext}]%
+           \twocolumn[{\IEEEquantizevspace{\@maketitle {\large \center \@date \par}}[\IEEEquantizedisabletitlecmds]{0pt}[-\topskip]{\baselineskip}{\@IEEENORMtitlevspace}{\@IEEEMINtitlevspace}\@IEEEaftertitletext}]%
         \fi
      \else
         \newpage\global\@topnum\z@ \@maketitle\@IEEEstatictitlevskip\@IEEEaftertitletext%
