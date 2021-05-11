@@ -7,7 +7,7 @@ use tokio::{
 
 const ADDRESS: &str = "127.0.0.1:8080";
 
-async fn handle_client(mut stream: TcpStream) -> std::io::Result<()> {
+fn handle_client(mut stream: TcpStream) {
     tokio::spawn(async move {
         println!("New connection.");
 
@@ -37,8 +37,6 @@ async fn handle_client(mut stream: TcpStream) -> std::io::Result<()> {
         println!("Connection closed.");
         Ok::<(), Error>(())
     });
-
-    Ok(())
 }
 
 #[tokio::main]
@@ -48,6 +46,6 @@ async fn main() -> std::io::Result<()> {
     loop {
         let (stream, _) = listener.accept().await?;
 
-        handle_client(stream).await?;
+        handle_client(stream);
     }
 }

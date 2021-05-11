@@ -177,10 +177,11 @@ loop. If at least one byte was read the program enters the second match arm and 
 command line.
 
 If reading has failed, the program enters the third match arm and prints the error to the command line. After that it
-tries tu shutdown the stream. Here the \rust{shutdown} method always shuts down ... and does not need an
-enum as an argument. It also returns an \rust{Result} wrapped by a \rust{Future}. First the future gets unwrapped by
-calling \rust{await} on it. Afterwards the result is unwrapped using the \rust{?} operator and the program breaks out
-of the loop.
+tries to shutdown the stream. Here the \rust{shutdown} method writes all buffered data to the stream and shuts down the
+write instance of the stream using a sys call. Other than the \rust{shutdown} method of \rust{std::io::TcpStream}, it
+does not take an enum as an argument to control how the stream should be shut down. The method also returns an
+\rust{Result} wrapped by a \rust{Future}. First the future gets unwrapped by calling \rust{await} on it. Afterwards the
+result is unwrapped using the \rust{?} operator and the program breaks out of the loop.
 
 In the end of the task we have to explicitly specify the type of the result returned. The reason for this is the use of
 the \rust{?} operator in \textcolor{orange}{line 14} to unwrap the returned value of the \rust{shutdown} method. As
@@ -190,11 +191,12 @@ exact type of the \rust{Ok} enum variant, the compiler is able to infer the retu
 \rust{?} operator. Another way to handle this would be to use the \rust{expect} method instead or create an extra
 asynchronous function instead of using \rust{async} blocks. \cite{async-rust}
 
-Next we are going to open the TCP streams and call the \rust{handle_client} with the stream as an argument. It was
-already mentioned before that having TCP connections to multiple clients would require a thread for each connection.
-Tokio solves this problem as the event loop manages and listens to every connection. Instead of creating a thread for
-each connection it is only required to spawn a task for each TCP stream. That is why the following code examples
-supports connecting to multiple clients:
+As in chapter 3 we can now wrap our code from figure 7 into a function called \rust{handle_client} to be able to call
+it in figure 8. Next we are going to open the TCP streams and call the \rust{handle_client} with the stream as an
+argument. It was already mentioned before that having TCP connections to multiple clients would require a thread for
+each connection. Tokio solves this problem as the event loop manages and listens to every connection. Instead of
+creating a thread for each connection it is only required to spawn a task for each TCP stream. That is why the
+following code examples supports connecting to multiple clients:
 
 \begin{figure}[h]
     \begin{minted}{Rust}
@@ -203,13 +205,25 @@ let listener = TcpListener::bind(ADDRESS).await?;
 loop {
     let (stream, _) = listener.accept().await?;
 
-    handle_client(stream).await?;
+    handle_client(stream);
 }
     \end{minted}
     \caption{Asynchronous TCP listener}
 \end{figure}
 
-Text
+First a \rust{tokio::net::TcpListener} is created by binding it to the address saved in the \rust{&str} constant
+\rust{ADDRESS}. This value corresponds to the ip address and port the server should listen to. The future result is
+then unwrapped using \rust{await} as well as \rust{?} and saved to the variable \rust{listener}. As the
+\rust{TcpListener} of tokio does not implement the \rust{incoming} method, we have to call the \rust{accept} method of
+the listener ourselves. This method again returns a tupel including the \rust{TcpStream} and the address of the new
+connection, wrapped by a \rust{Result} to handle errors and a \rust{Future} to make the waiting operation non-blocking.
+After that the received stream can be given to our \rust{handle_client} function, which spawns the new task handeling
+the client. As the client handeling runs in an extra task, the program can continue to run and accept new connections
+without having to wait for the current one to disconnect.
+
+To connect to this server one could just use the TCP client of figure 3, as both servers use the same protocol and can
+work together interchangeably. To showcase how the tokio library affects a client implementation, there is a smaller
+demonstration of an asynchronous TCP client in figure 9.
 
 \begin{figure}[h]
     \begin{minted}{Rust}
@@ -223,19 +237,11 @@ loop {
     match reader
         .read_line(&mut buf).await {
         Ok(_) => {
-            if buf.trim() == "exit" {
-                stream
-                    .shutdown()
-                    .await?;
-                break;
-            }
-
             let bytes = buf.as_bytes();
 
             stream
                 .write_all(bytes)
-                .await
-                .expect("Writing");
+                .await?;
         }
         Err(e) => {
             eprintln!("{}", e);
@@ -247,3 +253,33 @@ loop {
     \end{minted}
     \caption{Asynchronous TCP client}
 \end{figure}
+
+In the beginning a \rust{tokio::net::TcpStream} instance is created by connecting to \rust{ADDRESS}, a constant in
+which the address of the server is saved as a \rust{&str}. Other than the synchronous implementation, we are not going
+to read from the command line directly but rather wrap it using a \rust{tokio::io::BufReader} to be able to read from
+it without blocking the task.
+
+The loop for reading messages on the command line and sending them to the server is also very similar to the
+synchronous implementation of figure 3: In \textcolor{orange}{line 6} a new \rust{String} called \rust{buf} is created
+to save the input of the user. Then the \rust{read_line} method with \rust{buf} as an argument is invoked. As this is
+an asynchronous method, we can use the \rust{await} keyword to give up the computing resources until new input was
+written into the buffer. In case new input was written to the buffer and the scheduler continues to execute the task,
+the return value of \rust{read_line} is matched.
+
+If reading was successful, the program enters the first match arm. In figure 3 this match
+arm included a check whether the read string is equal to "exit" to offer a way to close the connection other than just
+closing it forcefully. This part is removed in figure 9 as it works the same way. The read input is converted to bytes
+using \rust{as_bytes} and saved in the variable \rust{bytes} and after that the byte slice is given as an argument to
+the \rust{write_all} method of \rust{stream}. The returned \rust{Future} is again unwrapped using \rust{await} and the
+contained \rust{Result} unwrapped using \rust{?}.
+
+If reading has failed the error is printed to the error output, the program tries to shutdown the stream using its
+\rust{shutdown} method, unwrap the \rust{Future} and \rust{Result} using \rust{await} and \rust{?} and then break out
+of the loop.
+
+When running the TCP client, the asynchronous client does not differ as much from the synchronous client as the server
+implementations differ from each other. The server implementation can use the scheduling from tokio to handle multiple
+connections at once. The client on the otherhand is idle anyway, when it is waiting for input on the command line,
+because it does not have any additional tasks. If you expanded the implementation to a complete chat client which can
+both send and receive message, a second task would be needed to listen for new data on the connection. Here an
+asynchronous environment would be of more use.

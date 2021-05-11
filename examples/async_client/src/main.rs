@@ -23,10 +23,7 @@ async fn main() -> std::io::Result<()> {
                 }
 
                 // Send buffer to server
-                stream
-                    .write_all(buf.as_bytes())
-                    .await
-                    .expect("Failed to write to server");
+                stream.write_all(buf.as_bytes()).await?;
             }
             Err(e) => {
                 // Print read error and shut down stream
