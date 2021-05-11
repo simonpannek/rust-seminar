@@ -20,6 +20,13 @@
 
 \usemintedstyle{manni}
 
+% Add "*" as an explicit line break character
+\AtBeginEnvironment{minted}{
+\catcode`*\active
+\begingroup\lccode`~=`\*\lowercase{\endgroup\def~{\linebreak}}
+}
+
+% Macro color for overwriting if the macro is not recognized
 \definecolor{macro}{rgb}{0.80, 0.00, 1.00}
 
 % Commands
