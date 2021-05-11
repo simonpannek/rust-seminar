@@ -1,3 +1,5 @@
+use std::io::Error;
+
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     net::{TcpListener, TcpStream},
@@ -26,16 +28,14 @@ async fn handle_client(mut stream: TcpStream) -> std::io::Result<()> {
                 Err(e) => {
                     // Print read error and shut down stream
                     eprintln!("An error occured when reading from socket: {}", e);
-                    stream
-                        .shutdown()
-                        .await
-                        .expect("Failed to shutdown connection");
+                    stream.shutdown().await?;
                     break;
                 }
             }
         }
 
         println!("Connection closed.");
+        Ok::<(), Error>(())
     });
 
     Ok(())

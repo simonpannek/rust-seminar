@@ -65,10 +65,11 @@ host can also use the sequence number to eliminate duplicates and order the segm
 The module \rust{std::net} of the Rust standard library already implements this protocol, so you can work with those
 abstractions independent of what plattform the code is currently running. To demonstrate this in a better way, we are
 going to implement a small TCP server which accepts connections and prints incoming messages as well as a TCP client,
-which connects to our server and sends messages from the command line to it. The following piece of code demonstrates
-how messages sent to a \rust{std::net::TcpStream} can be received and printed for the user to read:
+which connects to our server and sends messages from the command line to it. Figure 1 demonstrates how messages sent to
+a \rust{std::net::TcpStream} can be received and printed for the user to read:
 
-\begin{minted}{Rust}
+\begin{figure}[h]
+    \begin{minted}{Rust}
 let mut reader = BufReader::new(&stream);
 
 loop {
@@ -84,7 +85,9 @@ loop {
         }
     }
 }
-\end{minted}
+    \end{minted}
+    \caption{TCP client handeling}
+\end{figure}
 
 The variable \rust{stream} has the type \rust{TcpStream} and represents a connection between two hosts. Data is being
 transmitted when you write it to the stream and the other host can read the received information by reading from the
@@ -116,12 +119,13 @@ stream should be shut down. The \rust{?} operator tries to unwrap the \rust{Resu
 returns immediately if the result is equal to an \rust{Err}. If the unwrap was successful, the program ignores the
 result and simply breaks out of the loop.
 
-The example above can be used to handle a connection to a single host and print all the received data until the
+The example of figure 1 can be used to handle a connection to a single host and print all the received data until the
 connection is closed. To actually run the code, we still have to initialize the stream in the first place. To make
-everything simpler, let us assume that the example above is wrapped into a method called
-\rust{handle_client(stream: std::io::TcpStream)}:
+everything simpler, let us assume that the code of figure 1 is now wrapped into a method called
+\rust{handle_client(stream: TcpStream)}. We are now able to call this method in the code of figure 2:
 
-\begin{minted}{Rust}
+\begin{figure}[h]
+    \begin{minted}{Rust}
 let listener = TcpListener::bind(ADDRESS)
     .expect("Bind to address");
 
@@ -131,7 +135,9 @@ for stream in listener.incoming() {
             .expect("Handle client");
     }
 }
-\end{minted}
+    \end{minted}
+    \caption{TCP listener}
+\end{figure}
 
 First a listener of the type \rust{std::net::TcpListener} has to be created by binding it to \rust{ADDRESS}. The
 constant \rust{ADDRESS} has the type \rust{&str} and contains the address and port (e.g. "127.0.0.1:8080") on which the
@@ -156,9 +162,10 @@ only print the error to the command line. This would result the server to be mor
 error occurs in handeling the current connection.
 
 Now the only thing we need to actually use our server is a client to connect to. A simple TCP client is implemented in
-this example:
+figure 3:
 
-\begin{minted}{Rust}
+\begin{figure}[h]
+    \begin{minted}{Rust}
 let mut stream = TcpStream::connect(ADDRESS)?;
 
 loop {
@@ -184,7 +191,9 @@ loop {
         }
     }
 }
-\end{minted}
+    \end{minted}
+    \caption{TCP client}
+\end{figure}
 
 First a connection to the server is established using the function \rust{TcpStream::connect}, which takes
 \rust{ADDRESS} as an argument. The constant \rust{ADDRESS} is similar to the constant we have used in the server and
@@ -229,10 +238,11 @@ not matter. A typical example for UDP applications would be media streaming. \ci
 
 When trying to communicate over UDP in Rust, you can use the struct \rust{std::net::UdpSocket}. It provides methods to
 bind to an address, send and receive data. As we do not need a server to listen for new connections, the following
-example will be split into a sender who sends data and into a receiver who receives those messages. Here is an example
-how the code on the receiving end could look like:
+example will be split into a sender who sends data and into a receiver who receives those messages. In figure 4 there
+is an example, how the code on the receiving end could look like:
 
-\begin{minted}{Rust}
+\begin{figure}[h]
+    \begin{minted}{Rust}
 let socket = UdpSocket::bind(ADDRESS)?;
 
 loop {
@@ -251,7 +261,9 @@ loop {
         }
     }
 }
-\end{minted}
+    \end{minted}
+    \caption{UDP receiver}
+\end{figure}
 
 In the beginning a socket is created by calling the \rust{bind} method and giving the address the socket should listen
 to as an argument. The result is unwrapped using \rust{?} and then moved into a variable. After that the program keeps
@@ -262,10 +274,10 @@ incoming messages of multiple hosts.
 When trying to receive an incoming message we first have to initialize a buffer to save the data of the other host.
 A \rust{UdpSocket} does not implement the trait \rust{std::io::Read}. This means you cannot create a \rust{BufReader}
 instance in order to read the data from the socket. Alternatively we have to read the messages as bytes and the parse
-them into a String later. The variable \rust{buf} in this case is a byte slice of the length \rust{1500}. If you know
-the size of the data beforehand, you can adjust the buffer length according to this, but as we do know anything about
-the data we are going to receive, this example uses the size of a typical UDP MTU (Maximum Transmission Unit). If a
-message is larger than the buffer, it is going to get cut off.
+them into a \rust{String} later. The variable \rust{buf} in this case is a byte slice of the length \rust{1500}. If you
+know the size of the data beforehand, you can adjust the buffer length according to this, but as we do know anything
+about the data we are going to receive, this example uses the size of a typical UDP MTU (Maximum Transmission Unit). If
+a message is larger than the buffer, it is going to get cut off.
 
 In \textcolor{orange}{line 6} the method \rust{recv_from} is used to read the next arriving package into \rust{buf}. If
 the call was successful, the program enters the first match arm, tries to convert the byte slice into a \rust{&str} and
@@ -273,9 +285,10 @@ panics in case of a failure using the \rust{expect} method. After that the messa
 the call has failed, the program prints the error and breaks out of the loop.
 
 To send data to this receiver, you cannot just use the TCP client implemented before as it uses a different protocol. In
-the following example you can see a small implementation of an UDP sender:
+figure 5 you can see a small implementation of an UDP sender:
 
-\begin{minted}{Rust}
+\begin{figure}[h]
+    \begin{minted}{Rust}
 let socket = UdpSocket::bind("0.0.0.0:0")?;
 
 loop {
@@ -299,7 +312,9 @@ loop {
         }
     }
 }
-\end{minted}
+    \end{minted}
+    \caption{UDP sender}
+\end{figure}
 
 Here the socket is not bound to the address of the host we want to send messages to. Rather the \rust{bind} method is
 given the static address "0.0.0.0:0". This is because of the UDP protocol. As there is no set connection between two

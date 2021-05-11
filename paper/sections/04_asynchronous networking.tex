@@ -42,11 +42,10 @@ execution without the tokio runtime, the scheduler knows when the current task c
 otherwise unused CPU time by letting another task run instead.
 
 \subsection{Programming with futures}
-Text
+Let us now take a look at the small demonstration of futures in figure 6:
 
-Let us take a look at a small demonstration of futures:
-
-\begin{minted}{Rust}
+\begin{figure}[h]
+    \begin{minted}{Rust}
 async fn async_function() {
     println!("Started task1");
     sleep(Duration::from_secs(5))
@@ -67,7 +66,9 @@ async fn main() {
 
     '\textcolor{macro}{join!}'(future1, future2);
 }
-\end{minted}
+    \end{minted}
+    \caption{Future demonstration}
+\end{figure}
 
 The declared types of functions play an important role when working with tokio. This is the reason why the example
 above also includes the entire function definitions.
@@ -82,7 +83,7 @@ would enter the function, completely evaluate it and after that continue executi
 The type of \rust{future2} is also a \rust{Future}, the only difference being that it uses an \rust{async} block
 instead of an extra function to define the asynchronous code.
 
-In the end the macro \nohighlight{join!} is used to wait for both futures to complete while executing them
+In the end the macro \nohighlight{join!} is used to wait for both futures to evaluate completely while executing them
 concurrently.
 
 Both functions first print a short message, that they have started executing, then they sleep a certain amount of time
@@ -117,22 +118,18 @@ Finished task2
 Finished task1
 \end{minted}
 
-\subsection{Asynchronous TCP networking}
-Text
+\subsection{Asynchronous TCP communication}
+Tokio offers the module \rust{tokio::net}, which contains a TCP and UDP networking API similar to the one of the
+standard library used in chapter 3. Those functions are marked as \rust{async}, blending in with the rest of the tokio
+ecosystem.
 
-\begin{minted}{Rust}
-let listener = TcpListener::bind(ADDRESS).await?;
+Let us first use tokio to spawn a new task which handles a connection by reading all incoming messages and printing the
+output to the command line. The code of figure 7 implements basic asynchronous client handeling:
 
-loop {
-    let (stream, _) = listener.accept().await?;
-
-    handle_client(stream).await?;
-}
-\end{minted}
-
-\begin{minted}{Rust}
+\begin{figure}[h]
+    \begin{minted}{Rust}
 tokio::spawn(async move {
-    let mut reader = BufReader::new(&mut stream);
+    let mut reader =*BufReader::new(&mut stream);
 
     loop {
         let mut buf = String::new();
@@ -140,21 +137,82 @@ tokio::spawn(async move {
         match reader
             .read_line(&mut buf).await {
             Ok(0) => break,
-            Ok(size) => print!("{}", buf),
+            Ok(size) =>*print!("{}", buf),
             Err(e) => {
                 eprintln!("{}", e);
                 stream
-                    .shutdown()
-                    .await
-                    .expect("Shutdown");
+                    .shutdown().await?;
                 break;
             }
         }
     }
-});
-\end{minted}
 
-\begin{minted}{Rust}
+    Ok::<(), Error>(())
+});
+    \end{minted}
+    \caption{Asynchronous TCP client handeling}
+\end{figure}
+
+The current connection is represented as the variable \rust{stream} which has the type \rust{tokio::net::TcpStream}.
+The function \rust{tokio::spawn} takes a \rust{Future} as an argument and creates a new asynchronous task. When and how
+this task gets executed depends on the configuration of the current runtime.
+
+As an argument the function is given an asynchronous code block, which returns a \rust{Future} as seen in figure 6.
+Here additionaly to the \rust{async} keyword, \rust{move} is used. This means the asynchronous block will take the
+ownership of all variables referenced within it. Without this keyword, all variables would be bound to the scope of the
+code surrounding it. This is especially important as our asynchronous code needs full ownership of the \rust{stream}
+variable in order to read from it and shut it down in case of an error.
+
+The rest of the code is similar to the synchronous TCP client handeling of figure 1: In \textcolor{orange}{line 3} a
+buffered reader instance is created for more efficient reading from the \rust{TcpStream}. After that the program enters
+a loop to repeatedly read the input of the connection. In \textcolor{orange}{line 5} a mutable \rust{String} named
+\rust{buf} is created to save the incoming data. Then the method \rust{read_line} of \rust{reader} is called with
+\rust{buf} as an argument. As the reader instance has the type \rust{tokio::io::BufReader} in this asynchronous
+implementation, \rust{read_line} does not return a simple \rust{Result} but rather a \rust{Future} which wraps around
+the returned value. This means we can use an \rust{await} point to tell the scheduler it can stop running the current
+program until new data has arrived.
+
+If reading was successful and no bytes were read, it means that the connection was closed and we can break out of the
+loop. If at least one byte was read the program enters the second match arm and the read data gets printed to the
+command line.
+
+If reading has failed, the program enters the third match arm and prints the error to the command line. After that it
+tries tu shutdown the stream. Here the \rust{shutdown} method always shuts down ... and does not need an
+enum as an argument. It also returns an \rust{Result} wrapped by a \rust{Future}. First the future gets unwrapped by
+calling \rust{await} on it. Afterwards the result is unwrapped using the \rust{?} operator and the program breaks out
+of the loop.
+
+In the end of the task we have to explicitly specify the type of the result returned. The reason for this is the use of
+the \rust{?} operator in \textcolor{orange}{line 14} to unwrap the returned value of the \rust{shutdown} method. As
+\rust{async} blocks do not have a explicitly specified return type, the compiler sometimes fails to infer the error
+type of the async block. This will trigger the compiler error \nohighlight{type annotations needed}. By specifying the
+exact type of the \rust{Ok} enum variant, the compiler is able to infer the return type and we are able to use the
+\rust{?} operator. Another way to handle this would be to use the \rust{expect} method instead or create an extra
+asynchronous function instead of using \rust{async} blocks. \cite{async-rust}
+
+Next we are going to open the TCP streams and call the \rust{handle_client} with the stream as an argument. It was
+already mentioned before that having TCP connections to multiple clients would require a thread for each connection.
+Tokio solves this problem as the event loop manages and listens to every connection. Instead of creating a thread for
+each connection it is only required to spawn a task for each TCP stream. That is why the following code examples
+supports connecting to multiple clients:
+
+\begin{figure}[h]
+    \begin{minted}{Rust}
+let listener = TcpListener::bind(ADDRESS).await?;
+
+loop {
+    let (stream, _) = listener.accept().await?;
+
+    handle_client(stream).await?;
+}
+    \end{minted}
+    \caption{Asynchronous TCP listener}
+\end{figure}
+
+Text
+
+\begin{figure}[h]
+    \begin{minted}{Rust}
 let mut stream = TcpStream::connect(ADDRESS).await?;
 
 let mut reader = BufReader::new(stdin());
@@ -186,5 +244,6 @@ loop {
         }
     }
 }
-\end{minted}
-
+    \end{minted}
+    \caption{Asynchronous TCP client}
+\end{figure}
