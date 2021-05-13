@@ -68,7 +68,7 @@ going to implement a small TCP server which accepts connections and prints incom
 which connects to our server and sends messages from the command line to it. Figure 1 demonstrates how messages sent to
 a \rust{std::net::TcpStream} can be received and printed for the user to read:
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 let mut reader = BufReader::new(&stream);
 
@@ -124,7 +124,7 @@ connection is closed. To actually run the code, we still have to initialize the 
 everything simpler, let us assume that the code of figure 1 is now wrapped into a method called
 \rust{handle_client(stream: TcpStream)}. We are now able to call this method in the code of figure 2:
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 let listener = TcpListener::bind(ADDRESS)
     .expect("Bind to address");
@@ -164,7 +164,7 @@ error occurs in handeling the current connection.
 Now the only thing we need to actually use our server is a client to connect to. A simple TCP client is implemented in
 figure 3:
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 let mut stream = TcpStream::connect(ADDRESS)?;
 
@@ -241,7 +241,7 @@ bind to an address, send and receive data. As we do not need a server to listen 
 example will be split into a sender who sends data and into a receiver who receives those messages. In figure 4 there
 is an example, how the code on the receiving end could look like:
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 let socket = UdpSocket::bind(ADDRESS)?;
 
@@ -287,7 +287,7 @@ the call has failed, the program prints the error and breaks out of the loop.
 To send data to this receiver, you cannot just use the TCP client implemented before as it uses a different protocol. In
 figure 5 you can see a small implementation of an UDP sender:
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 let socket = UdpSocket::bind("0.0.0.0:0")?;
 

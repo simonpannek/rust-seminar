@@ -44,7 +44,7 @@ otherwise unused CPU time by letting another task run instead.
 \subsection{Programming with futures}
 Let us now take a look at the small demonstration of futures in figure 6:
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 async fn async_function() {
     println!("Started task1");
@@ -120,13 +120,13 @@ Finished task1
 
 \subsection{Asynchronous TCP communication}
 Tokio offers the module \rust{tokio::net}, which contains a TCP and UDP networking API similar to the one of the
-standard library used in chapter 3. Those functions are marked as \rust{async}, blending in with the rest of the tokio
+standard library used in chapter 2. Those functions are marked as \rust{async}, blending in with the rest of the tokio
 ecosystem.
 
 Let us first use tokio to spawn a new task which handles a connection by reading all incoming messages and printing the
 output to the command line. The code of figure 7 implements basic asynchronous client handeling:
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 tokio::spawn(async move {
     let mut reader =*BufReader::new(&mut stream);
@@ -191,14 +191,14 @@ exact type of the \rust{Ok} enum variant, the compiler is able to infer the retu
 \rust{?} operator. Another way to handle this would be to use the \rust{expect} method instead or create an extra
 asynchronous function instead of using \rust{async} blocks. \cite{async-rust}
 
-As in chapter 3 we can now wrap our code from figure 7 into a function called \rust{handle_client} to be able to call
+As in chapter 2 we can now wrap our code from figure 7 into a function called \rust{handle_client} to be able to call
 it in figure 8. Next we are going to open the TCP streams and call the \rust{handle_client} with the stream as an
 argument. It was already mentioned before that having TCP connections to multiple clients would require a thread for
 each connection. Tokio solves this problem as the event loop manages and listens to every connection. Instead of
 creating a thread for each connection it is only required to spawn a task for each TCP stream. That is why the
 following code examples supports connecting to multiple clients:
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 let listener = TcpListener::bind(ADDRESS).await?;
 
@@ -225,7 +225,7 @@ To connect to this server one could just use the TCP client of figure 3, as both
 work together interchangeably. To showcase how the tokio library affects a client implementation, there is a smaller
 demonstration of an asynchronous TCP client in figure 9.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \begin{minted}{Rust}
 let mut stream = TcpStream::connect(ADDRESS).await?;
 
