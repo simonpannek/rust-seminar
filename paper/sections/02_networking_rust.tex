@@ -2,40 +2,13 @@
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
 \section{Networking in Rust}
-Rust is an open-source programming language developed by Mozilla introducing memory-safety without a runtime or garbage
-collection. Its standard library provides networking primitives for basic TPC/UDP communication, which allows socket
-communication and error handeling out of the box. \cite{rust-language}
+It was already mentioned before that the Rust uses verification at compile time to stop compiling the code if
+something unsafe could happen at runtime without it explicitly being marked as unsafe. To effeciently check for any of
+those unsafe memory accesses or possible data races, Rust uses the system of ownership, borrowing and lifetimes. It is
+very important to be familiar with those concepts before actually starting to implement an own network application,
+because otherwise many compiler errors will not seem rational.
 
-\subsection{Advantages of using Rust for networking}
-There are usually different approaches when it comes to picking a language for networking, especially if you want to
-implement a new transport protocol on a lower level.
-
-You can use a scripting language like Python or JavaScript. With such languages you are able to easily import libraries
-to give you a basic networking API and they offer a simple syntax allowing fast prototyping. As those languages usually
-are interpreted, they often perform much slower compared to executing compiled binary files as the instructions first
-have to get translated by the interpreter before being executed.
-
-If speed and scalability is an important factor (as it is most of the time), a compiled language can be a good choice.
-This is the reason why many networking libraries are written in C or C++. Those two languages do not guarantee memory
-safety. If a programmer makes a mistake, the compiler does not check for undefined behavior and just falls back to some
-default action and can lead to corruption of memory.
-
-This can particularly be a problem when working with network applications as you often have to read and write to
-buffers concurrently. If incoming information is just written to a buffer with no checks for the buffer size, an
-attacker might be able to overwrite data in the memory and change the flow of the program. This is called a buffer
-overflow attack and can lead to an attacker being able to control the host running the network application.
-\cite{c00buffer}
-
-Another problem with C and C++ is thread safety. Parallelization and preventing race conditions is completly up to the
-programmer. When sharing data between multiple threads without proper synchronization, many errors will only occur when
-in production with a lot of concurrent access and a higher load on the server.
-
-Rust on the other hand is also a compiled language, but the compiler guarantees for memory- and thread-safety. This
-means it profits from the fast speed compiled languages have and also prevents most of the vulnerabilities mentioned
-above from happening, thanks to Rust rejecting to compile code which could introduce such issues. To effeciently check
-for any unsafe memory accesses or possible data races, Rust uses the system of ownership, borrowing and lifetimes.
-
-\subsection{Ownership, Borrowing and Lifetimes}
+\subsection{Ownership, borrowing and lifetimes}
 In Rust, a part of the code can own a piece of memory. When a function is called with an owned value, the piece of
 memory gets moved into that function and the code calling the it is not allowed to access it after the function call.
 Often a function does not need complete access to a value. In the case it can borrow a reference to the value. This
@@ -122,7 +95,8 @@ result and simply breaks out of the loop.
 The example of figure 1 can be used to handle a connection to a single host and print all the received data until the
 connection is closed. To actually run the code, we still have to initialize the stream in the first place. To make
 everything simpler, let us assume that the code of figure 1 is now wrapped into a method called
-\rust{handle_client(stream: TcpStream)}. We are now able to call this method in the code of figure 2:
+\rust{handle_client}, which takes the \rust{TcpStream} it handles as an argument. We are now able to call this
+function in the code of figure 2.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
