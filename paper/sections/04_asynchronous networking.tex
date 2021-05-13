@@ -283,3 +283,20 @@ connections at once. The client on the otherhand is idle anyway, when it is wait
 because it does not have any additional tasks. If you expanded the implementation to a complete chat client which can
 both send and receive message, a second task would be needed to listen for new data on the connection. Here an
 asynchronous environment would be of more use.
+
+\subsection{Asynchronous UDP communication}
+When it comes to asynchronous UDP communication, tokio offers the struct \rust{tokio::net::UdpSocket} which works
+similar to the \rust{UdpSocket} of the standard library used in figure 4 and 5 for the UDP sender and receiver.
+
+Porting the synchronous UDP implementation to an asynchronous one works the same as we have done for the TCP client and
+server in the previous subchapter: Blocking operations are replaced by non-blocking operations returning futures. If
+the current task has to wait for a future to evaluate, \rust{async} can be used.
+
+As UDP does not implement actual connections between the sender and the receiver and only binds to an address, the
+behavior of the asynchronous UDP implementation will also not differ as much from the synchronous example, similar to
+the example of figure 9. At least this is the case if the sender and receiver are as strictly seperated from each other
+as they are in the synchronous UDP example. Otherwise the struct \rust{std::sync::Arc} could be used to share the
+ownership of the \rust{UdpSocket} to have a sending and receiving task in the same client. This is possible, because
+both the \rust{send_to} and \rust{recv_from} methods of the socket do not require a mutable reference to the socket. If
+this was not the case, you could not share one socket for two tasks as there can only be one mutable reference to a
+certain piece of data in Rust.
