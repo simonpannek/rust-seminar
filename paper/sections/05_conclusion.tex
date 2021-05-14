@@ -22,17 +22,17 @@ shown, which even allowed multiple clients to message the receiver at the same t
 asynchronous programing and how the introduction of a custom scheduler can replace blocking operations by swapping
 out tasks, which have reached a \rust{await} point and have to wait for another task to evaluate. In this context the
 synchronous TCP implementation from before was converted into an asynchronous one and the advantage of not having to
-create a thread for each connection, that should be maintained at the same time was mentioned. In the end a
+create a thread for each connection, that should be maintained at the same time, was mentioned. In the end a
 \rust{struct} was sent from a client to a server using the Hypertext Transfer Protocol (HTTP) in order to show how
 asynchronous programming can also be applied in network applications on the application layer.
 
 There are many aspects, which were not considered in the chapters before. When it comes to scalability one might
-consider to use a decentralized approach using loadbalancing with multiple servers handeling connections and possibly
-communicating with each other in the background. Also a lot of possible security vulnerabilities were not considered
-yet: Rust may be able to avoid security issues caused by null pointers, dangling pointers or data races, but this are
-not the only places where errors can occur. By instance if a server is accepting input from other clients, you usually
-want to parse and verify the input received, before handeling the message instead of blindly trusting the incoming
-data.
+consider to use a decentralized approach featuring loadbalancing with multiple servers handeling connections and
+possibly communicating with each other in the background. Also a lot of possible security vulnerabilities were not
+considered yet: Rust may be able to avoid security issues caused by null pointers, dangling pointers or data races, but
+this are not the only places where errors can occur. By instance if a server is accepting input from other clients, you
+usually want to parse and verify the input received, before handeling the message instead of blindly trusting the
+incoming data.
 
 One final question, which might come up is why Rust is not used more for networking applications. In the introduction
 it was mentioned that most networking APIs are writting in C or C++. The Rust Survey of 2020 suggests, that a huge

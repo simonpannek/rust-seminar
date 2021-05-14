@@ -5,30 +5,30 @@
 Many modern devices used today are using the internet to communicate with each other. This concept of connecting to
 each other dates back to the 1960s when the protocols for one of the first computer networks, the ARPANET, were
 developed. It allowed large existing host computers with different configurations to communicate with each other, even
-allowing indirect package transmission by using the hosts as a bridge between two not directly connected host
+allowing indirect package transmission by using the hosts as a bridge between two not directly connected hosts
 \cite{f70arpa}. Since then new protocols have been introduced, additional security, for example through encryption was
-added and a lot of these changes were standardized in order to let devices produced by diverse manufacturers seemingly
+added and a lot of these changes were standardized in order to let devices produced by diverse manufacturers seamlessly
 work together.
 
 One advantage of standardization is that almost every common used programming language supports those frequently
-deployed networking protocols, whether directly in its standard library or through simple imports of third party
-libraries. All those options raises the question which language to use for own application purposes. There is no one
-right answer to thie question as this depends on the particular use case, the environment where it has to run, time and
-cost of development and even more. This paper goes into detail what advantages the programming language Rust has to
-offer when it comes to running it as a backend of a network application and showcases simple code examples about
-communication using the protocols TCP and UDP.
+deployed networking protocols, whether natively in its standard library or through simple imports of third party
+libraries. All those options raise the question which language to use for own application purposes. There is no right
+answer to this question as it depends on the particular use case, the environment where it has to run, time and cost of
+development and even more. This paper goes into detail what advantages the programming language Rust has to offer when
+it comes to running it as a backend of a network application and showcases simple code examples about communication
+using the protocols TCP and UDP.
 
 Rust is an open-source programming language developed by Mozilla introducing memory-safety without a runtime or garbage
-collection. Its standard library provides networking primitives for basic TPC/UDP communication, which allows socket
+collection. Its standard library provides networking primitives for basic TPC/UDP communication, allowing socket
 communication and error handeling out of the box. \cite{rust-language}
 
-There are usually different approaches when it comes to picking a language for networking, especially if you want to
-directly work with a transport protocol and a custom application protocol on top of it.
+There are usually different approaches when getting to picking a language for networking, especially if you directly
+want to work with a transport protocol and a custom application protocol on top of it.
 
 As one option you can use a scripting language like Python or JavaScript. With such languages you are able to easily
 import libraries to give you a basic networking API and they offer a simple syntax allowing fast prototyping. As those
 languages usually are interpreted, they often perform much slower compared to executing compiled binary files as the
-instructions first have to get translated by the interpreter before being executed.
+instructions first have to get translated by the interpreter before being run.
 
 If speed and scalability is an important factor (as it is most of the time), a compiled language can be a good choice.
 This is the reason why many networking libraries are written in C or C++. Those two languages do not guarantee memory
@@ -56,14 +56,14 @@ enums of the type \rust{std::result::Result}. This allows the use of pattern mat
 failed and enables easy ways to handle this failure.
 
 Another selling point of Rust is its well integrated package manager cargo, making it possible to easily import third
-party libraries called crates, keeping them up to date and shipping them integrated into the own application.
+party libraries called crates, keeping them up to date, shipping and integrating them into an own application.
 
-To see, how those principles apply in basic TCP and UDP communication, chapter 2 will first give a short overview about
+To see, how those benefits apply in basic TCP and UDP communication, chapter 2 will first give a short overview about
 ownership, borrowing and lifetimes and after that explain the implementations of a TCP client and server as well as an
 UDP sender and receiver, programmed in Rust using the standard library. Chapter 3 is going to explain, why the
 implementations of the previous chapter are not always optimal as the standard library uses blocking operations for
 network calls. As a solution, asynchronous programming using a library called tokio and the principle of futures is
 going to get introduced. After that an asynchronous server and client code example is shown to explain possible
 difference and advantages compared to a synchronous and blocking approach. Chapter 5 leaves the transport layer where
-protocols like TCP and UDP are explicetly used and is going to shift the focus to higher-level communication on the
+protocols like TCP and UDP are explicitly used and is going to shift the focus to higher-level communication on the
 application layer. In the end, everything discussed is going to get summarized and concluded.
