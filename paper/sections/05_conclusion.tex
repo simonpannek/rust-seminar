@@ -22,7 +22,9 @@ shown, which even allowed multiple clients to message the receiver at the same t
 asynchronous programing and how the introduction of a custom scheduler can replace blocking operations by swapping
 out tasks, which have reached a \rust{await} point and have to wait for another task to evaluate. In this context the
 synchronous TCP implementation from before was converted into an asynchronous one and the advantage of not having to
-create a thread for each connection, that should be maintained at the same time was mentioned. Last...
+create a thread for each connection, that should be maintained at the same time was mentioned. In the end a
+\rust{struct} was sent from a client to a server using the Hypertext Transfer Protocol (HTTP) in order to show how
+asynchronous programming can also be applied in network applications on the application layer.
 
 There are many aspects, which were not considered in the chapters before. When it comes to scalability one might
 consider to use a decentralized approach using loadbalancing with multiple servers handeling connections and possibly
