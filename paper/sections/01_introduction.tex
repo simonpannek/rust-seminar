@@ -20,7 +20,7 @@ using the protocols TCP and UDP.
 
 Rust is an open-source programming language developed by Mozilla introducing memory-safety without a runtime or garbage
 collection. Its standard library provides networking primitives for basic TPC/UDP communication, allowing socket
-communication and error handeling out of the box. \cite{rust-language}
+communication and error handling out of the box. \cite{rust-language}
 
 There are usually different approaches when getting to picking a language for networking, especially if you directly
 want to work with a transport protocol and a custom application protocol on top of it.
@@ -45,7 +45,7 @@ Another problem with C and C++ is thread safety. Parallelization and preventing 
 programmer. When sharing data between multiple threads without proper synchronization, many errors will only occur when
 in production with a lot of concurrent access and a higher load on the server.
 
-Rust on the other hand is also a compiled language, but the compiler guarantees for memory- and thread-safety. This
+Rust, on the other hand, is also a compiled language, but the compiler guarantees for memory- and thread-safety. This
 means it profits from the fast speed compiled languages have and also prevents most of the vulnerabilities mentioned
 above from happening, thanks to Rust rejecting to compile code which could introduce such issues.
 
@@ -55,15 +55,15 @@ rely on system calls of the operating system, instead it wraps the returned info
 enums of the type \rust{std::result::Result}. This allows the use of pattern matching to check if an operation has
 failed and enables easy ways to handle this failure.
 
-Another selling point of Rust is its well integrated package manager cargo, making it possible to easily import third
+Another selling point of Rust is its well integrated package manager Cargo, making it possible to easily import third
 party libraries called crates, keeping them up to date, shipping and integrating them into an own application.
 
 To see, how those benefits apply in basic TCP and UDP communication, chapter 2 will first give a short overview about
 ownership, borrowing and lifetimes and after that explain the implementations of a TCP client and server as well as an
 UDP sender and receiver, programmed in Rust using the standard library. Chapter 3 is going to explain, why the
 implementations of the previous chapter are not always optimal as the standard library uses blocking operations for
-network calls. As a solution, asynchronous programming using a library called tokio and the principle of futures is
+network calls. As a solution, asynchronous programming using a library called Ttokio and the principle of futures is
 going to get introduced. After that an asynchronous server and client code example is shown to explain possible
 difference and advantages compared to a synchronous and blocking approach. Chapter 5 leaves the transport layer where
 protocols like TCP and UDP are explicitly used and is going to shift the focus to higher-level communication on the
-application layer. In the end, everything discussed is going to get summarized and concluded.
+application layer. In the end, everything discussed is going to be summarized.

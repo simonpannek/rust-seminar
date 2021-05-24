@@ -18,10 +18,10 @@ also mutable references in Rust, but it is only allowed to have a single mutable
 This can be really useful when working with network applications as this prevents the occurence of data races if a
 thread tries to read or write to a buffer while another thread is already writing to it.
 
-The compiler of Rust does not check for illegal array accesses, but other than in C the program exits with an error
-code (this is called a panic) if the program tries to access an index which is out of bounds. This does not prevent
-buffer overflows to take place in advance, but at least the program stops executing immediately instead of letting it
-happen and possibly introducing security issues.
+The compiler of Rust does not check for illegal array accesses, but unlike in C the program exits with an error code
+(this is called a panic) if the program tries to access an index which is out of bounds. This does not prevent buffer
+overflows to take place in advance, but at least the program stops executing immediately instead of letting it happen
+and possibly introducing security issues.
 
 Variables usually have a lifetime determined by the code block it was created. If a variable gets out of scope, the
 corresponding piece of memory is freed automatically. If a value gets moved into another function, its lifetime changes
@@ -59,7 +59,7 @@ loop {
     }
 }
     \end{minted}
-    \caption{TCP client handeling}
+    \caption{TCP client handling}
 \end{figure}
 
 The variable \rust{stream} has the type \rust{TcpStream} and represents a connection between two hosts. Data is being
@@ -92,11 +92,11 @@ stream should be shut down. The \rust{?} operator tries to unwrap the \rust{Resu
 returns immediately if the result is equal to an \rust{Err}. If the unwrap was successful, the program ignores the
 result and simply breaks out of the loop.
 
-The example of figure 1 can be used to handle a connection to a single host and print all the received data until the
+The example of Figure 1 can be used to handle a connection to a single host and print all the received data until the
 connection is closed. To actually run the code, we still have to initialize the stream in the first place. To make
-everything simpler, let us assume that the code of figure 1 is now wrapped into a method called
+everything simpler, let us assume that the code of Figure 1 is now wrapped into a method called
 \rust{handle_client}, taking the \rust{TcpStream} it handles as an argument. We are now able to call this function in
-the code of figure 2.
+the code of Figure 2.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -130,13 +130,13 @@ if the connection was successful. If the returned value of the \rust{TcpListener
 and the listener tries to find another host.
 
 In case a connection was established successfully, our function \rust{handle_client} is called with \rust{stream} as an
-argument. As the handeling of the client can also result in errors, the \rust{expect} method is used once again to
+argument. As the handling of the client can also result in errors, the \rust{expect} method is used once again to
 panic if something has failed. An alternative approach would be to check the returned value of \rust{handle_client} and
 only print the error to the command line. This would result the server to be more stable and not panic completly if an
-error occurs in handeling the current connection.
+error occurs in handling the current connection.
 
 Now the only thing we need to actually use our server is a client to connect to. A simple TCP client is implemented in
-figure 3.
+Figure 3.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -212,7 +212,7 @@ not matter. A typical example for UDP applications would be media streaming. \ci
 
 When trying to communicate over UDP in Rust, you can use the struct \rust{std::net::UdpSocket}. It provides methods to
 bind to an address, send and receive data. As we do not need a server to listen for new connections, the following
-example will be split into a sender who sends data and into a receiver who receives those messages. In figure 4 there
+example will be split into a sender who sends data and into a receiver who receives those messages. In Figure 4 there
 is an example, how the code on the receiving end could look like.
 
 \begin{figure}[ht]
@@ -259,7 +259,7 @@ panics in case of a failure using the \rust{expect} method. After that the messa
 the call has failed, the program prints the error and breaks out of the loop.
 
 To send data to this receiver, you cannot just use the TCP client implemented before as it uses a different protocol. In
-figure 5 you can see a small implementation of an UDP sender.
+Figure 5 you can see a small implementation of an UDP sender.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -294,7 +294,7 @@ Here the socket is not bound to the address of the host we want to send messages
 given the static address "0.0.0.0:0". This is because of the UDP protocol. As there is no set connection between two
 hosts, our sender needs an own address and port in order to receive answers from the other host. By giving the
 \rust{bind} method the static address of "0.0.0.0:0" as an argument, we implicitly state that the host should use its
-own ip address and choose any free, available port it is allowed to use. It would also work to set the port explicitly,
+own IP address and choose any free, available port it is allowed to use. It would also work to set the port explicitly,
 but this risks choosing a port which is already used by another program.
 
 From this point on the sender is really similar to the TCP client: In a continous loop the user input from the command

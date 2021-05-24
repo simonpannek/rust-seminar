@@ -4,7 +4,7 @@
 \section{Conclusion}
 In conclusion, Rust can be a very powerful language for writing applications to run on network servers. It is often
 times very important to deploy a secure and efficient language in the backend of an application as the server
-underlying a service can be considered the bottleneck most of the times when it comes to verifying and handeling user
+underlying a service can be considered the bottleneck most of the times when it comes to verifying and handling user
 requests. Slowing down or even outages of such applications can cause a lot of damage and should be avoided at any
 cost. Security vulnerabilities can also cause interruption of service or even accidental disclosure of sensible user
 data, depending on what type of application is affected.
@@ -27,16 +27,16 @@ create a thread for each connection, that should be maintained at the same time,
 asynchronous programming can also be applied in network applications on the application layer.
 
 There are many aspects, which were not considered in the chapters before. When it comes to scalability one might
-consider to use a decentralized approach featuring loadbalancing with multiple servers handeling connections and
+consider to use a decentralized approach featuring loadbalancing with multiple servers handling connections and
 possibly communicating with each other in the background. Also a lot of possible security vulnerabilities were not
 considered yet: Rust may be able to avoid security issues caused by null pointers, dangling pointers or data races, but
 this are not the only places where errors can occur. By instance if a server is accepting input from other clients, you
-usually want to parse and verify the input received, before handeling the message instead of blindly trusting the
+usually want to parse and verify the input received, before handling the message instead of blindly trusting the
 incoming data.
 
-One final question, which might come up is why Rust is not used more for networking applications. In the introduction
-it was mentioned that most networking APIs are writting in C or C++. The Rust Survey of 2020 suggests, that a huge
-issue is the adoption of the language in companies \cite{rust-survey}. This makes sense as switching the language of an
-existing code base requires a lot of refactoring and introducing a new language adds the overhead of the employees
-first having to learn this new language. Another common reason is the steep learning curve related to the rather strict
-concepts of ownership and lifetimes the compiler enforces.
+One final question, which might come up, is why Rust is not being used more for networking applications. In the
+introduction it was mentioned that most networking APIs are writting in C or C++. The Rust Survey of 2020 suggests,
+that a huge issue is the adoption of the language in companies \cite{rust-survey}. This makes sense as switching the
+language of an existing code base requires a lot of refactoring and introducing a new language adds the overhead of the
+employees first having to learn this new language. Another common reason is the steep learning curve related to the
+rather strict concepts of ownership and lifetimes the compiler enforces.

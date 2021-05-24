@@ -7,7 +7,7 @@ a client to a server. This may be enough for simple applications like a chat ser
 abstraction on top of that is needed to send special data like structs over a connection. This is where protocols
 belonging to the application layer come into place.
 
-The following chapter will give a small insight into the principle how the asynchronous communication using tokio can
+The following chapter will give a small insight into the principle how the asynchronous communication using Tokio can
 also be used together with higher level protocols. In particular the Hypertext Transfer Protocol (HTTP), a protocol
 used for data transmission for the World Wide Web is going to be utilized in order to send a \rust{struct} from a
 client to the server and receive a response as a confirmation. HTTP is usually based on the TCP protocol but can also
@@ -15,7 +15,7 @@ be implemented using other transport protocols, which offer a confirmation, if s
 
 \subsection{Serialization}
 Before sending anything over HTTP, first a piece of data to actually send is needed. For this we are going to introduce
-the \rust{struct} called \rust{Data} in figure 10, which will both be implemented in the HTTP client and server.
+the \rust{struct} called \rust{Data} in Figure 10, which will both be implemented in the HTTP client and server.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -45,8 +45,8 @@ Now that it is possible to convert the struct into a format which is sendable ov
 accept incoming requests. There are many crates, which enable you to accept and handle HTTP requests in Rust. For our
 HTTP server implementation, we are going to use a crate called warp.
 
-Warp is simple web server framework, which builds on top of the crate hyper, a HTTP implementation for Rust
-\cite{warp-doc}. Warp makes use of asynchronous programming and seamlessly works together with tokio. An important
+Warp is simple web server framework, which builds on top of the crate Hyper, a HTTP implementation for Rust
+\cite{warp-doc}. Warp makes use of asynchronous programming and seamlessly works together with Tokio. An important
 concept of warp are the so called filters: \rust{warp::Filter} is a struct, which extracts data from a request, handles
 the data and sends a response back to the sender of the request. The \rust{Filter} implements two important methods:
 
@@ -60,7 +60,7 @@ the request and can map it to another value. This value in return gets sent back
 \rust{Filter} also implements more methods useful for rejecting certain requests or customizing filters to take
 different sets of arguments in a request, but those methods will not be needed for our example.
 
-In figure 11 you can find a small example implementation of a web server written using warp.
+In Figure 11 you can find a small example implementation of a web server written using warp.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -98,12 +98,12 @@ initialization.
 
 To run this server, the struct implements the asynchronous method \rust{run}, taking the address it should listen to
 as an argument and running the \rust{Server} on the current thread until the program is closed. \rust{ADDRESS} here has
-the type \rust{([u8, 4], u16)}, a tupel with the ip address as a byte slice with a length of 4 and the port represented
+the type \rust{([u8, 4], u16)}, a tuple with the IP address as a byte slice with a length of 4 and the port represented
 as an unsigned short.
 
 To send the struct to this web server, we need to create a HTTP client. Reqwest is a crate often used for sending
 simple HTTP requests to a web server and similar to warp also makes use of asynchronous methods and requires some kind
-of runtime like tokio, at least when using its default API. In figure 12 there is an example implementation of a
+of runtime like Tokio, at least when using its default API. In Figure 12 there is an example implementation of a
 reqwest HTTP client sending a custom struct of the type \rust{Data} to the warp server.
 
 \begin{figure}[ht]
@@ -137,5 +137,5 @@ URL. To save the result of the request, the returned value is first unwrapped us
 asynchronous method \rust{text} can be used. The \rust{String} has to be unwrapped using \rust{await} and
 \rust{expect}, similar to the returned value of \rust{send}.
 
-If we run the example of figure 12 with the web server of figure 11 running at the same time, the client prints the
+If we run the example of Figure 12 with the web server of Figure 11 running at the same time, the client prints the
 response \nohighlight{Received:} \nohighlight{Data { number: 5, boolean: true }}.
