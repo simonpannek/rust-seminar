@@ -38,8 +38,9 @@ host can also use the sequence number to eliminate duplicates and order the segm
 The module \rust{std::net} of the Rust standard library already implements this protocol, so you can work with those
 abstractions independent of what plattform the code is currently running. To demonstrate this in a better way, we are
 going to implement a small TCP server which accepts connections and prints incoming messages as well as a TCP client,
-which connects to our server and sends messages from the command line to it. Figure 1 demonstrates how messages sent to
-a \rust{std::net::TcpStream} can be received and printed for the user to read.
+which connects to our server and sends messages from the command line to it.
+\textcolor{teal}{Figure\ref{tcp-client-handeling}} demonstrates how messages sent to a \rust{std::net::TcpStream} can
+be received and printed for the user to read.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -60,6 +61,7 @@ loop {
 }
     \end{minted}
     \caption{TCP client handling}
+    \label{tcp-client-handeling}
 \end{figure}
 
 The variable \rust{stream} has the type \rust{TcpStream} and represents a connection between two hosts. Data is being
@@ -92,11 +94,12 @@ stream should be shut down. The \rust{?} operator tries to unwrap the \rust{Resu
 returns immediately if the result is equal to an \rust{Err}. If the unwrap was successful, the program ignores the
 result and simply breaks out of the loop.
 
-The example of Figure 1 can be used to handle a connection to a single host and print all the received data until the
-connection is closed. To actually run the code, we still have to initialize the stream in the first place. To make
-everything simpler, let us assume that the code of Figure 1 is now wrapped into a method called
-\rust{handle_client}, taking the \rust{TcpStream} it handles as an argument. We are now able to call this function in
-the code of Figure 2.
+The example of \textcolor{teal}{Figure \ref{tcp-client-handeling}} can be used to handle a connection to a single host
+and print all the received data until the connection is closed. To actually run the code, we still have to initialize
+the stream in the first place. To make everything simpler, let us assume that the code of
+\textcolor{teal}{Figure \ref{tcp-client-handeling}} is now wrapped into a method called \rust{handle_client}, taking
+the \rust{TcpStream} it handles as an argument. We are now able to call this function in the code of
+\textcolor{teal}{Figure \ref{tcp-listener}}.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -111,6 +114,7 @@ for stream in listener.incoming() {
 }
     \end{minted}
     \caption{TCP listener}
+    \label{tcp-listener}
 \end{figure}
 
 First a listener of the type \rust{std::net::TcpListener} has to be created by binding it to \rust{ADDRESS}. The
@@ -136,7 +140,7 @@ only print the error to the command line. This would result the server to be mor
 error occurs in handling the current connection.
 
 Now the only thing we need to actually use our server is a client to connect to. A simple TCP client is implemented in
-Figure 3.
+\textcolor{teal}{Figure \ref{tcp-client}}.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -167,6 +171,7 @@ loop {
 }
     \end{minted}
     \caption{TCP client}
+    \label{tcp-client}
 \end{figure}
 
 First a connection to the server is established using the function \rust{TcpStream::connect}, which takes
@@ -212,8 +217,8 @@ not matter. A typical example for UDP applications would be media streaming. \ci
 
 When trying to communicate over UDP in Rust, you can use the struct \rust{std::net::UdpSocket}. It provides methods to
 bind to an address, send and receive data. As we do not need a server to listen for new connections, the following
-example will be split into a sender who sends data and into a receiver who receives those messages. In Figure 4 there
-is an example, how the code on the receiving end could look like.
+example will be split into a sender who sends data and into a receiver who receives those messages. In
+\textcolor{teal}{Figure \ref{udp-receiver}} there is an example, how the code on the receiving end could look like.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -237,6 +242,7 @@ loop {
 }
     \end{minted}
     \caption{UDP receiver}
+    \label{udp-receiver}
 \end{figure}
 
 In the beginning a socket is created by calling the \rust{bind} method and giving the address the socket should listen
@@ -259,7 +265,7 @@ panics in case of a failure using the \rust{expect} method. After that the messa
 the call has failed, the program prints the error and breaks out of the loop.
 
 To send data to this receiver, you cannot just use the TCP client implemented before as it uses a different protocol. In
-Figure 5 you can see a small implementation of an UDP sender.
+\textcolor{teal}{Figure \ref{udp-sender}} you can see a small implementation of an UDP sender.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -288,6 +294,7 @@ loop {
 }
     \end{minted}
     \caption{UDP sender}
+    \label{udp-sender}
 \end{figure}
 
 Here the socket is not bound to the address of the host we want to send messages to. Rather the \rust{bind} method is

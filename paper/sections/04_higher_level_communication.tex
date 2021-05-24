@@ -15,7 +15,8 @@ be implemented using other transport protocols, which offer a confirmation, if s
 
 \subsection{Serialization}
 Before sending anything over HTTP, first a piece of data to actually send is needed. For this we are going to introduce
-the \rust{struct} called \rust{Data} in Figure 10, which will both be implemented in the HTTP client and server.
+the \rust{struct} called \rust{Data} in Figure \ref{data-struct}, which will both be implemented in the HTTP client and
+server.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -26,6 +27,7 @@ struct Data {
 }
     \end{minted}
     \caption{Data struct}
+    \label{data-struct}
 \end{figure}
 
 Even though we do not want to use raw TCP communication to send our packages, HTTP still is a text based protocol. This
@@ -60,7 +62,7 @@ the request and can map it to another value. This value in return gets sent back
 \rust{Filter} also implements more methods useful for rejecting certain requests or customizing filters to take
 different sets of arguments in a request, but those methods will not be needed for our example.
 
-In Figure 11 you can find a small example implementation of a web server written using warp.
+In \textcolor{teal}{Figure \ref{http-server}} you can find a small example implementation of a web server written using warp.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -72,6 +74,7 @@ let filter = warp::'\textcolor{macro}{path!}'("data")
 warp::serve(filter).run(ADDRESS).await;
     \end{minted}
     \caption{Warp HTTP server}
+    \label{http-server}
 \end{figure}
 
 First a \rust{Filter}, which matches a path of a possible request sent to the server, has to be created. Here the macro
@@ -103,8 +106,8 @@ as an unsigned short.
 
 To send the struct to this web server, we need to create a HTTP client. Reqwest is a crate often used for sending
 simple HTTP requests to a web server and similar to warp also makes use of asynchronous methods and requires some kind
-of runtime like Tokio, at least when using its default API. In Figure 12 there is an example implementation of a
-reqwest HTTP client sending a custom struct of the type \rust{Data} to the warp server.
+of runtime like Tokio, at least when using its default API. In \textcolor{teal}{Figure \ref{http-client}} there is an
+example implementation of a reqwest HTTP client sending a custom struct of the type \rust{Data} to the warp server.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -123,6 +126,7 @@ let response = client
 println!("{}", response.text()*.await.expect("Get text"));
     \end{minted}
     \caption{Reqwest HTTP client}
+    \label{http-client}
 \end{figure}
 
 In \textcolor{orange}{line 1} an instance of the type \rust{reqwest::Client} gets created in order to send asynchronous
@@ -137,5 +141,6 @@ URL. To save the result of the request, the returned value is first unwrapped us
 asynchronous method \rust{text} can be used. The \rust{String} has to be unwrapped using \rust{await} and
 \rust{expect}, similar to the returned value of \rust{send}.
 
-If we run the example of Figure 12 with the web server of Figure 11 running at the same time, the client prints the
-response \nohighlight{Received:} \nohighlight{Data { number: 5, boolean: true }}.
+If we run the example of \textcolor{teal}{Figure \ref{http-client}} with the web server of
+\textcolor{teal}{Figure \ref{http-server}} running at the same time, the client prints the response
+\nohighlight{Received:} \nohighlight{Data { number: 5, boolean: true }}.

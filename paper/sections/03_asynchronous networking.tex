@@ -42,7 +42,7 @@ execution without the Tokio runtime, the scheduler knows when the current task c
 otherwise unused CPU time by letting another task run instead.
 
 \subsection{Programming with futures}
-Let us now take a look at the small demonstration of futures in Figure 6.
+Let us now take a look at the small demonstration of futures in \textcolor{teal}{Figure \ref{udp-sender}}.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -68,10 +68,11 @@ async fn main() {
 }
     \end{minted}
     \caption{Future demonstration}
+    \label{future}
 \end{figure}
 
 The declared types of functions play an important role when working with Tokio. This is the reason why the example
-of Figure 6 also includes the entire function definitions.
+of \textcolor{teal}{Figure \ref{future}} also includes the entire function definitions.
 
 The main function is marked as \rust{async} and the Tokio macro is used to create a runtime for our program to run in.
 In \textcolor{orange}{line 10}, the asynchronous function \rust{async_function} is called. The value returned by the
@@ -124,7 +125,8 @@ standard library used in chapter 2. Those functions are marked as \rust{async}, 
 ecosystem.
 
 Let us first use Tokio to spawn a new task which handles a connection by reading all incoming messages and printing the
-output to the command line. The code of Figure 7 implements basic asynchronous client handling.
+output to the command line. The code of \textcolor{teal}{Figure \ref{async-tcp-client-handeling}} implements basic
+asynchronous client handling.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -151,26 +153,27 @@ tokio::spawn(async move {
 });
     \end{minted}
     \caption{Asynchronous TCP client handling}
+    \label{async-tcp-client-handeling}
 \end{figure}
 
 The current connection is represented as the variable \rust{stream}, which has the type \rust{tokio::net::TcpStream}.
 The function \rust{tokio::spawn} takes a \rust{Future} as an argument and creates a new asynchronous task. When and how
 this task gets executed depends on the configuration of the current runtime.
 
-As an argument the function is given an asynchronous code block, which returns a \rust{Future} as seen in Figure 6.
-Here additionaly to the \rust{async} keyword, \rust{move} is used. This means the asynchronous block will take the
-ownership of all variables referenced within it. Without this keyword, all variables would be bound to the scope of the
-code surrounding it. This is especially important as our asynchronous code needs full ownership of the \rust{stream}
-variable in order to read from it and shut it down in case of an error.
+As an argument the function is given an asynchronous code block, which returns a \rust{Future} as seen in Figure
+\textcolor{teal}{\ref{future}}. Here additionaly to the \rust{async} keyword, \rust{move} is used. This means the
+asynchronous block will take the ownership of all variables referenced within it. Without this keyword, all variables
+would be bound to the scope of the code surrounding it. This is especially important as our asynchronous code needs
+full ownership of the \rust{stream} variable in order to read from it and shut it down in case of an error.
 
-The rest of the code is similar to the synchronous TCP client handling of Figure 1: In \textcolor{orange}{line 2} a
-buffered reader instance is created for more efficient reading from the \rust{TcpStream}. After that the program enters
-a loop to repeatedly read the input of the connection. In \textcolor{orange}{line 5} a mutable \rust{String} named
-\rust{buf} is created to save the incoming data. Then the method \rust{read_line} of \rust{reader} is called with
-\rust{buf} as an argument. As the reader instance has the type \rust{tokio::io::BufReader} in this asynchronous
-implementation, \rust{read_line} does not return a simple \rust{Result} but rather a \rust{Future} which wraps around
-the returned value. This means we can use an \rust{await} point to tell the scheduler it can stop running the current
-program until new data has arrived.
+The rest of the code is similar to the synchronous TCP client handling of
+\textcolor{teal}{Figure \ref{tcp-client-handeling}}: In \textcolor{orange}{line 2} a buffered reader instance is
+created for more efficient reading from the \rust{TcpStream}. After that the program enters a loop to repeatedly read
+the input of the connection. In \textcolor{orange}{line 5} a mutable \rust{String} named \rust{buf} is created to save
+the incoming data. Then the method \rust{read_line} of \rust{reader} is called with \rust{buf} as an argument. As the
+reader instance has the type \rust{tokio::io::BufReader} in this asynchronous implementation, \rust{read_line} does not
+return a simple \rust{Result} but rather a \rust{Future} which wraps around the returned value. This means we can use
+an \rust{await} point to tell the scheduler it can stop running the current program until new data has arrived.
 
 If reading was successful and no bytes were read, it means that the connection was closed and we can break out of the
 loop. If at least one byte was read the program enters the second match arm and the read data gets printed to the
@@ -191,12 +194,13 @@ exact type of the \rust{Ok} enum variant, the compiler is able to infer the retu
 \rust{?} operator. Another way to handle this would be to use the \rust{expect} method instead or create an extra
 asynchronous function instead of using \rust{async} blocks. \cite{async-rust}
 
-As in chapter 2 we can now wrap our code from Figure 7 into a function called \rust{handle_client} to be able to call
-it in Figure 8. Next we are going to open the TCP streams and call the \rust{handle_client} with the stream as an
-argument. It was already mentioned before that having TCP connections to multiple clients would require a thread for
-each connection. Tokio solves this problem as the event loop manages and listens to every connection. Instead of
-creating a thread for each connection it is only required to spawn a task for each TCP stream. That is why the code
-example of Figure 8 supports connecting to multiple clients.
+As in chapter 2 we can now wrap our code from \textcolor{teal}{Figure \ref{async-tcp-client-handeling}} into a function
+called \rust{handle_client} to be able to call it in \textcolor{teal}{Figure \ref{async-tcp-listener}}. Next we are
+going to open the TCP streams and call the \rust{handle_client} with the stream as an argument. It was already
+mentioned before that having TCP connections to multiple clients would require a thread for each connection. Tokio
+solves this problem as the event loop manages and listens to every connection. Instead of creating a thread for each
+connection it is only required to spawn a task for each TCP stream. That is why the code example of Figure
+\textcolor{teal}{\ref{async-tcp-listener}} supports connecting to multiple clients.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -209,6 +213,7 @@ loop {
 }
     \end{minted}
     \caption{Asynchronous TCP listener}
+    \label{async-tcp-listener}
 \end{figure}
 
 First a \rust{tokio::net::TcpListener} is created by binding it to the address saved in the \rust{&str} constant
@@ -221,9 +226,10 @@ After that the received stream can be given to our \rust{handle_client} function
 the client. As the client handling runs in an extra task, the program can continue to run and accept new connections
 without having to wait for the current one to disconnect.
 
-To connect to this server one could just use the TCP client of Figure 3, as both servers use the same protocol and can
-work together interchangeably. To showcase how the Tokio library affects a client implementation, there is a smaller
-demonstration of an asynchronous TCP client in Figure 9.
+To connect to this server one could just use the TCP client of \textcolor{teal}{Figure \ref{tcp-client}}, as both
+servers use the same protocol and can work together interchangeably. To showcase how the Tokio library affects a client
+implementation, there is a smaller demonstration of an asynchronous TCP client in
+\textcolor{teal}{Figure \ref{async-tcp-client}}.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -252,6 +258,7 @@ loop {
 }
     \end{minted}
     \caption{Asynchronous TCP client}
+    \label{async-tcp-client}
 \end{figure}
 
 In the beginning a \rust{tokio::net::TcpStream} instance is created by connecting to \rust{ADDRESS}, a constant in
@@ -260,18 +267,18 @@ to read from the command line directly but rather wrap it using a \rust{tokio::i
 read from it without blocking the task.
 
 The loop for reading messages on the command line and sending them to the server is also very similar to the
-synchronous implementation of Figure 3: In \textcolor{orange}{line 6} a new \rust{String} called \rust{buf} is created
-to save the input of the user. Then the \rust{read_line} method with \rust{buf} as an argument is invoked. As this is
-an asynchronous method, we can use the \rust{await} keyword to give up the computing resources until new input was
-written into the buffer. In case new input was written to the buffer and the scheduler continues to execute the task,
-the return value of \rust{read_line} is matched.
+synchronous implementation of \textcolor{teal}{Figure \ref{tcp-client}}: In \textcolor{orange}{line 6} a new
+\rust{String} called \rust{buf} is created to save the input of the user. Then the \rust{read_line} method with
+\rust{buf} as an argument is invoked. As this is an asynchronous method, we can use the \rust{await} keyword to give up
+the computing resources until new input was written into the buffer. In case new input was written to the buffer and
+the scheduler continues to execute the task, the return value of \rust{read_line} is matched.
 
-If reading was successful, the program enters the first match arm. In Figure 3 this match
-arm included a check whether the read string is equal to "exit" to offer a way to close the connection other than just
-closing it forcefully. This part is removed in Figure 9 as it works the same way. The read input is converted to bytes
-using \rust{as_bytes} and saved in the variable \rust{bytes}. After that the byte slice is given as an argument to the
-\rust{write_all} method of \rust{stream}. The returned \rust{Future} is again unwrapped using \rust{await} and the
-contained \rust{Result} unwrapped using \rust{?}.
+If reading was successful, the program enters the first match arm. In\textcolor{teal}{ Figure \ref{tcp-client}} this
+match arm included a check whether the read string is equal to "exit" to offer a way to close the connection other than
+just closing it forcefully. This part is removed in \textcolor{teal}{Figure \ref{async-tcp-client}} as it works the
+same way. The read input is converted to bytes using \rust{as_bytes} and saved in the variable \rust{bytes}. After that
+the byte slice is given as an argument to the \rust{write_all} method of \rust{stream}. The returned \rust{Future} is
+again unwrapped using \rust{await} and the contained \rust{Result} unwrapped using \rust{?}.
 
 If reading has failed, the error is printed to the error output, the program tries to shutdown the stream using its
 \rust{shutdown} method, unwrap the \rust{Future} and \rust{Result} using \rust{await} and \rust{?} and then break out
@@ -286,7 +293,8 @@ asynchronous environment would be of more use.
 
 \subsection{Asynchronous UDP communication}
 When it comes to asynchronous UDP communication, Tokio offers the struct \rust{tokio::net::UdpSocket} which works
-similar to the \rust{UdpSocket} of the standard library used in Figure 4 and 5 for the UDP sender and receiver.
+similar to the \rust{UdpSocket} of the standard library used in \textcolor{teal}{Figure \ref{udp-receiver}} and
+\textcolor{teal}{\ref{udp-sender}} for the UDP sender and receiver.
 
 Porting the synchronous UDP implementation to an asynchronous one works the same as we have done for the TCP client and
 server in the previous subchapter: Blocking operations are replaced by non-blocking operations returning futures. If
@@ -294,9 +302,9 @@ the current task has to wait for a future to evaluate, \rust{async} can be used.
 
 As UDP does not implement actual connections between the sender and the receiver and only binds to an address, the
 behavior of the asynchronous UDP implementation will also not differ as much from the synchronous example, similar to
-Figure 9. At least this is the case if the sender and receiver are as strictly seperated from each other as they are in
-the synchronous UDP example. Otherwise the struct \rust{std::sync::Arc} could be used to share the ownership of the
-\rust{UdpSocket} to have a sending and receiving task in the same client. This is possible, because both the
-\rust{send_to} and \rust{recv_from} methods of the socket do not require a mutable reference to the socket. If this was
-not the case, you could not share one socket for two tasks as there can only be one mutable reference to a certain
-piece of data in Rust.
+\textcolor{teal}{Figure \ref{async-tcp-client}}. At least this is the case if the sender and receiver are as strictly
+seperated from each other as they are in the synchronous UDP example. Otherwise the struct \rust{std::sync::Arc} could
+be used to share the ownership of the \rust{UdpSocket} to have a sending and receiving task in the same client. This is
+possible, because both the \rust{send_to} and \rust{recv_from} methods of the socket do not require a mutable reference
+to the socket. If this was not the case, you could not share one socket for two tasks as there can only be one mutable
+reference to a certain piece of data in Rust.
