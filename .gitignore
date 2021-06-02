@@ -1,7 +1,7 @@
-paper/build/*
+*/build/*
 
 # Uncomment later to add the pdf to the repo
-!paper/build/*.pdf
+#!*/build/*.pdf
 
 paper/indent.log
 
