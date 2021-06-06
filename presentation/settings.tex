@@ -1,6 +1,46 @@
+% Uncomment either one to render the document with or without notes
+\notestrue
+%\notesfalse
+
+% Adjust beamer template
 \documentclass[aspectratio=169,xcolor=dvipsnames]{beamer}
+
 \usetheme{Simple}
 
+\setbeamertemplate{footline}[frame number]{} % Use frame numbers instead of page numbers
+\ifnotes
+    \setbeamertemplate{note page}[plain]
+    \setbeameroption{show notes on second screen=bottom}
+\fi
+
 \usepackage{hyperref}
-\usepackage{graphicx} % Allows including images
-\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\usepackage[outputdir=build]{minted}
+
+% Overwrite minted style
+\setminted[Rust]{
+    breaklines=true,
+    escapeinside=''
+}
+
+\usemintedstyle{manni}
+
+% Add "*" as an explicit line break character
+\AtBeginEnvironment{minted}{
+\catcode`*\active
+\begingroup\lccode`~=`\*\lowercase{\endgroup\def~{\linebreak}}
+}
+
+% Commands
+\newcommand{\rust}[1]{\mintinline{rust}{#1}}
+\newcommand{\nohighlight}[1]{\mintinline{TeX}{#1}}
+\newcommand{\enote}[1]{
+    \note{
+        \textbf{Notes:}
+        \begin{enumerate}
+            #1
+        \end{enumerate}
+    }
+}
