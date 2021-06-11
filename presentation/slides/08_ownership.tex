@@ -1,0 +1,42 @@
+% !TeX root = ../main.tex
+\begin{frame}{Networking in Rust}
+    \Huge
+    \centerline{Ownership, borrowing and lifetimes}
+
+    \pause
+
+    \br
+
+    \Large
+    \centerline{\so No dangling references, illegal memory access and memory leaks}
+
+    \pause
+
+    \br
+
+    \small
+    \centerline{(Except if you are explicitely working with \rust{unsafe} code)}
+
+    \enote{
+        \item Ownership, borrowing and lifetimes play an important role in networking code
+        \item Ownership:
+        \begin{enumerate}
+            \item A part of the code can own a piece of memory
+            \item Function is called with an owned value \so the piece of memory gets moved into that function
+        \end{enumerate}
+        \item Borrowing:
+        \begin{enumerate}
+            \item No complete access is needed \so a reference can be borrowed
+            \item There are also mutable reference: Only one is allowed at the same time
+            \item Useful whne working with network applications (prevents the occurence of data races if a thread tires
+                  to read or write to a buffer while another thread is already writing to it)
+            \item We are not going to take a look at \rust{std::sync::Arc}
+        \end{enumerate}
+        \item Lifetimes:
+        \begin{enumerate}
+            \item Lifetime determined by the code block it was created \so variable gets out of scope \so the
+                  corresponding piece of memory is freed
+            \item If a value gets moved into another function, its lifetime changes with it
+        \end{enumerate}
+    }
+\end{frame}

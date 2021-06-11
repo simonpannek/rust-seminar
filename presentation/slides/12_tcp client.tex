@@ -1,0 +1,45 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Networking in Rust}
+
+    \begin{block}{TCP client}
+        \begin{overprint}
+            \onslide<1>
+            \begin{minted}{Rust}
+            let mut stream = TcpStream::connect(ADDRESS)?;
+
+            loop {
+                let mut buf = String::new();
+            
+                match stdin().read_line(&mut buf) {
+                    ...
+                }
+            }
+            \end{minted}
+
+            \onslide<2>
+            \begin{minted}{Rust}
+                match stdin().read_line(&mut buf) {
+                    Ok(_) => {
+                        ...
+                    }
+                    Err(e) => {
+                        eprintln!("{}", e);
+                        stream.shutdown(Both)?;
+                        break;
+                    }
+                }
+            \end{minted}
+
+            \onslide<3>
+            \begin{minted}{Rust}
+                Ok(_) => {
+                    let bytes = buf.as_bytes();
+        
+                    stream
+                        .write_all(bytes)
+                        .expect("Writing");
+                }
+            \end{minted}
+        \end{overprint}
+    \end{block}
+\end{frame}

@@ -1,0 +1,33 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Networking in Rust}
+
+    \begin{block}{TCP client handeling}
+        \begin{overprint}
+            \onslide<1>
+            \begin{minted}{Rust}
+            let mut reader = BufReader::new(&stream);
+            
+            loop {
+                let mut buf = String::new();
+            
+                match reader.read_line(&mut buf) {
+                    ...
+                }
+            }
+            \end{minted}
+
+            \onslide<2>
+            \begin{minted}{Rust}
+            match reader.read_line(&mut buf) {
+                Ok(0) => break,
+                Ok(_) => print!("{}", buf),
+                Err(e) => {
+                    eprintln!("{}", e);
+                    stream.shutdown(Both)?;
+                    break;
+                }
+            }
+            \end{minted}
+        \end{overprint}
+    \end{block}
+\end{frame}

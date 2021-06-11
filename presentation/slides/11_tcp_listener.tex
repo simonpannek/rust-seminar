@@ -1,0 +1,17 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Networking in Rust}
+
+    \begin{block}{TCP listener}
+        \begin{minted}{Rust}
+            let listener = TcpListener::bind(ADDRESS)
+                .expect("Bind to address");
+            
+            for stream in listener.incoming() {
+                if let Ok(stream) = stream {
+                    handle_client(stream)
+                        .expect("Handle client");
+                }
+            }
+        \end{minted}
+    \end{block}
+\end{frame}
