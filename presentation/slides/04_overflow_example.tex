@@ -1,0 +1,29 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Introduction}
+    \begin{enumerate}
+        \item[]<2> \Huge{
+            \centerline{Buffer Overflow Attacks}
+        }
+
+        \item[]<1-> \Large{
+            \begin{minted}{C}
+            void unsecure_function(void) {
+                char buf[512];
+                read_from_network(buf);
+
+                ...
+            }
+            \end{minted}
+        }
+    \end{enumerate}
+
+    \enote{
+        \item Let us take a step back: Currently, many networking libraries are written in C or C++
+        \item What is the problem with this piece of code?
+        \item Buffer overflow attacks (Small explanation what can happen)
+        \item No guaranteed memory safety in C and C++
+        \item Mistakes of a programmer are not checked by the compiler and fall back to some default action (UB \so
+        corruption of memory)
+        \item Problematic for network applications (many concurrent reads and writes to buffers)
+    }
+\end{frame}

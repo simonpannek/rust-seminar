@@ -3,7 +3,7 @@
 # Uncomment later to add the pdf to the repo
 #!*/build/*.pdf
 
-paper/indent.log
+*/indent.log
 
 paper/_minted-main
 

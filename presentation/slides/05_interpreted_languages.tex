@@ -1,0 +1,28 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Introduction}
+    \begin{enumerate}
+        \item[]<2> \Huge{
+            \centerline{Interpreted languages}
+        }
+
+        \item[]<1-> \Large{
+            \begin{minted}{Python}
+            def more_secure_function(socket):
+                buf = socket.recv(512)
+    
+                ...
+            \end{minted}
+        }
+    \end{enumerate}
+
+    \enote{
+        \item Simplified example \so Depends on the actual use case and implementation whether something can be
+        considered secure
+        \item Interpreted languages like Python as a solution (background checks for undefined behavior for almost
+        everything)
+        \item Scripting languages allow fast prototyping
+        \item Trade off of interpreted languages: Slower performanced compared to executing compiled binary files
+        (Instructions first have to get translated by the interpreter)
+        \item They do not run natively on the computer \so you first have to install the interpreter
+    }
+\end{frame}

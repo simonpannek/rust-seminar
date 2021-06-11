@@ -1,7 +1,8 @@
-\begin{frame}{Overview}
-    % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
-    \tableofcontents
-\end{frame}
+% !TeX root = ../main.tex
+%\begin{frame}{Overview}
+% Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+%    \tableofcontents
+%\end{frame}
 
 %------------------------------------------------
 \section{First Section}
@@ -15,6 +16,16 @@
         \item Nam cursus est eget velit posuere pellentesque
         \item Vestibulum faucibus velit a augue condimentum quis convallis nulla gravida
     \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Enumerating Bullet Points}
+    \begin{enumerate}
+        \item<1-> First bullet
+        \item<3> This is the last bullet
+        \item<2-> This bullet appears second
+    \end{enumerate}
 \end{frame}
 
 %------------------------------------------------
@@ -97,19 +108,6 @@
     An example of the \verb|\cite| command to cite within the presentation:\\~
 
     This statement requires citation \cite{p1}.
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}{References}
-    % Beamer does not support BibTeX so references must be inserted manually as below
-    \footnotesize{
-        \begin{thebibliography}{99}
-            \bibitem[Smith, 2012]{p1} John Smith (2012)
-            \newblock Title of the publication
-            \newblock \emph{Journal Name} 12(3), 45 -- 678.
-        \end{thebibliography}
-    }
 \end{frame}
 
 %------------------------------------------------

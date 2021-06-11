@@ -1,0 +1,26 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Introduction}
+    \Huge{
+        \centerline{Rust as a solution?}
+    }
+
+    \vspace{\baselineskip}
+
+    \begin{figure}
+        \includegraphics[width=0.3\linewidth]{images/ferris.png}
+        \caption{Ferris the Crab \cite{ferris}}
+    \end{figure}
+
+    \enote{
+        \item Rust can be considered "the best of both worlds":
+        \begin{enumerate}
+            \item Compiled language with a compiler guaranteeing memory- and thread-safety
+            \item Fast speed of compiled languages and prevents most of the vulnerabilities mentioned before through
+                  its compiler checks
+            \item Network operations are prune to failure \so unsafe calls can be wrapped into enums of the type
+                  \rust{std::result::Result}
+            \item Package manager Cargo
+        \end{enumerate}
+        \item Let us first take a look how to implement basic TCP and UDP communication in Rust
+    }
+\end{frame}
