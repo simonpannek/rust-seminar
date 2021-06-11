@@ -1,20 +1,18 @@
 % !TeX root = ../main.tex
 \begin{frame}[fragile]{Introduction}
     \begin{enumerate}
-        \item[]<2> \Huge{
-            \centerline{Buffer Overflow Attacks}
-        }
+        \item[]<2> \Huge
+        \centerline{Buffer Overflow Attacks}
 
-        \item[]<1-> \Large{
-            \begin{minted}{C}
+        \item[]<1-> \Large
+        \begin{minted}{C}
             void unsecure_function(void) {
                 char buf[512];
                 read_from_network(buf);
 
                 ...
             }
-            \end{minted}
-        }
+        \end{minted}
     \end{enumerate}
 
     \enote{
