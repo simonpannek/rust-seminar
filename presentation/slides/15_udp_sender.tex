@@ -1,0 +1,37 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Networking in Rust}
+
+    \begin{block}{UDP sender}
+        \begin{overprint}
+            \onslide<1>
+            \begin{minted}{Rust}
+            let socket = UdpSocket::bind("0.0.0.0:0")?;
+
+            loop {
+                let mut buf = String::new();
+            
+                match stdin().read_line(&mut buf) {
+                    '\Large{...}'
+                }
+            }
+            \end{minted}
+
+            \onslide<2>
+            \begin{minted}{Rust}
+            match stdin().read_line(&mut buf) {
+                Ok(_) => {
+                    let bytes = buf.as_bytes();
+        
+                    socket
+                        .send_to(bytes, ADDRESS)
+                        .expect("Sending");
+                }
+                Err(e) => {
+                    eprintln!("{}", e);
+                    break;
+                }
+            }
+            \end{minted}
+        \end{overprint}
+    \end{block}
+\end{frame}

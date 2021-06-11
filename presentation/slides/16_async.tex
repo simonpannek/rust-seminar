@@ -1,0 +1,15 @@
+% !TeX root = ../main.tex
+\begin{frame}{Networking in Rust}
+    \textbf{The Transmission Control Protocol (TCP)}
+    \begin{itemize}
+        \item<2-> Active connection between two systems
+        \item<3-> Can be used to send a continous stream of octets to another host
+        \item<4-> A sequence number is assigned to each octet in order to confirm it was received
+        \item<5> If no acknowledgment (ACK) was received, the data is sent again
+    \end{itemize}
+
+    \enote{
+        \item TCP is used for reliable inter-process communication between two systems connected through a network
+        \item The sequence number can also be used to eliminate duplicates
+    }
+\end{frame}

@@ -1,0 +1,16 @@
+% !TeX root = ../main.tex
+\begin{frame}{Networking in Rust}
+    \textbf{The User Datagram Protocol (UDP)}
+    \begin{itemize}
+        \item<2-> Commonly used if you do not need reliable delivery of streams
+        \item<3-> Tries to send messages to other programs with a minimal amount of protocol mechanism
+        \item<4-> No protection against package duplication
+        \item<5> No checks whether the data sent has arrived and if it did in what order
+    \end{itemize}
+
+    \enote{
+        \item UDP is less reliable than the Transmission Control Protocol
+        \item No need to listen for new hosts or actively establish a connection
+        \item Typical example: Media streaming (package loss is acceptable)
+    }
+\end{frame}
