@@ -11,7 +11,7 @@
                 let mut buf = String::new();
             
                 match stdin().read_line(&mut buf) {
-                    ...
+                    '\Large{...}'
                 }
             }
             \end{minted}
@@ -20,7 +20,7 @@
             \begin{minted}{Rust}
                 match stdin().read_line(&mut buf) {
                     Ok(_) => {
-                        ...
+                        '\Large{...}'
                     }
                     Err(e) => {
                         eprintln!("{}", e);

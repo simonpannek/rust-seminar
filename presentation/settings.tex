@@ -27,12 +27,6 @@
 
 \usemintedstyle{manni}
 
-% Add "*" as an explicit line break character
-\AtBeginEnvironment{minted}{
-\catcode`*\active
-\begingroup\lccode`~=`\*\lowercase{\endgroup\def~{\linebreak}}
-}
-
 % Commands
 \newcommand{\rust}[1]{\mintinline{rust}{#1}}
 \newcommand{\nohighlight}[1]{\mintinline{TeX}{#1}}
