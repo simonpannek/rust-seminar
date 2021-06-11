@@ -1,15 +1,17 @@
 % !TeX root = ../main.tex
-\begin{frame}[fragile]{Networking in Rust}
-    \begin{block}{TCP client}
+\begin{frame}[fragile]{Asynchronous Networking in Rust}
+    \begin{block}{Asynchronous TCP client}
         \begin{overprint}
             \onslide<1>
             \begin{minted}{Rust}
-            let mut stream = TcpStream::connect(ADDRESS)?;
+            let mut stream = TcpStream::connect(ADDRESS).await?;
 
+            let mut reader = BufReader::new(stdin());
+            
             loop {
                 let mut buf = String::new();
             
-                match stdin().read_line(&mut buf) {
+                match reader.read_line(&mut buf).await {
                     '\Large{...}'
                 }
             }
@@ -17,13 +19,13 @@
 
             \onslide<2>
             \begin{minted}{Rust}
-            match stdin().read_line(&mut buf) {
+            match reader.read_line(&mut buf).await {
                 Ok(_) => {
                     '\Large{...}'
                 }
                 Err(e) => {
                     eprintln!("{}", e);
-                    stream.shutdown(Both)?;
+                    stream.shutdown().await?;
                     break;
                 }
             }
@@ -36,7 +38,7 @@
     
                 stream
                     .write_all(bytes)
-                    .expect("Writing");
+                    .await?;
             }
             \end{minted}
         \end{overprint}

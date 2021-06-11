@@ -1,0 +1,51 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Asynchronous Networking in Rust}
+    \begin{block}{Future demonstration}
+        \begin{overprint}
+            \onslide<1>
+            \begin{minted}{Rust}
+            async fn async_function() {
+                println!("Started task1");
+                sleep(Duration::from_secs(5))
+                    .await;
+                println!("Finished task1");
+            }
+            \end{minted}
+
+            \onslide<2>
+            \begin{minted}{Rust}
+            #[tokio::main]
+            async fn main() {
+                let future1 = async_function();
+
+                let future2 = async {
+                    println!("Started task2");
+                    sleep(Duration::from_secs(3))
+                        .await;
+                    println!("Finished task2");
+                };
+
+                '\textcolor{macro}{join!}'(future1, future2);
+            }
+            \end{minted}
+        \end{overprint}
+    \end{block}
+
+    \enote{
+        \item Complete asynchronous function declaration vs. \rust{async} block
+        \item Execution in blocking environment:
+        \begin{enumerate}
+            \item Started task1
+            \item Finished task1
+            \item Started task2
+            \item Finished task2
+        \end{enumerate}
+        \item Execution in non blocking environment:
+        \begin{enumerate}
+            \item Started task1
+            \item Started task2
+            \item Finished task2
+            \item Finished task1
+        \end{enumerate}
+    }
+\end{frame}

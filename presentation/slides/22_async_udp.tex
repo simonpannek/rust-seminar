@@ -1,0 +1,14 @@
+% !TeX root = ../main.tex
+\begin{frame}{Asynchronous Networking in Rust}
+    \Large
+    \centerline{What about Asynchronous UDP communication?}
+
+    \enote{
+        \item Tokio offers \rust{tokio::net::UdpSocket} \so works similar to \rust{std::net::UdpSocket}
+        \item Porting the synchronous UDP implementation to an asynchronous one works similarly to the TCP client
+        \item UDP does not implement actual connections \so waiting for new connections is non blocking anyway
+        \item The advantage of connecting to multiple clients for the asynchronous TCP client is not given for UDP
+        \item Client should also send messages? \rust{std::sync::Arc} could be used \so shared ownership to the socket
+        (no mutable reference needed for \rust{send_to} and \rust{recv_from})
+    }
+\end{frame}

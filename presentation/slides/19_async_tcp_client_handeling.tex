@@ -1,0 +1,43 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Asynchronous Networking in Rust}
+    \begin{block}{Asynchronous TCP client handeling}
+        \begin{overprint}
+            \onslide<1>
+            \begin{minted}{Rust}
+            tokio::spawn(async move {
+                let mut reader =*BufReader::new(&mut stream);
+            
+                loop {
+                    let mut buf = String::new();
+            
+                    match reader.read_line(&mut buf).await {
+                        '\Large{...}'
+                    }
+                }
+            
+                Ok::<(), Error>(())
+            });
+            \end{minted}
+
+            \onslide<2>
+            \begin{minted}{Rust}
+            match reader.read_line(&mut buf).await {
+                Ok(0) => break,
+                Ok(size) => print!("{}", buf),
+                Err(e) => {
+                    eprintln!("{}", e);
+                    stream
+                        .shutdown().await?;
+                    break;
+                }
+            }
+            \end{minted}
+        \end{overprint}
+    \end{block}
+
+    \enote{
+        \item \rust{async move} \so the asynchronous block will take the ownership of all variables referenced within it
+        \item Without this all variables would be bound to the scope of the code surrounding it
+        \item Full ownership of \rust{stream} is required
+    }
+\end{frame}

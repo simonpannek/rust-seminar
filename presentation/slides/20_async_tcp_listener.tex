@@ -1,0 +1,14 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Asynchronous TCP client handeling}
+    \begin{block}{Asynchronous TCP listener}
+        \begin{minted}{Rust}
+            let listener = TcpListener::bind(ADDRESS).await?;
+
+            loop {
+                let (stream, _) = listener.accept().await?;
+
+                handle_client(stream);
+            }
+        \end{minted}
+    \end{block}
+\end{frame}

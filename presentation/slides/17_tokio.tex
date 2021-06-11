@@ -1,0 +1,27 @@
+% !TeX root = ../main.tex
+\begin{frame}{Asynchronous Networking in Rust}
+    \textbf{The Tokio crate}
+
+    \begin{itemize}
+        \item<2-> Tokio is a runtime for writing reliable network applications \cite{tokio-doc}
+        \item<3-> Tokio consists out of three major parts:
+        \begin{enumerate}
+            \item<4-> I/O event loop
+            \item<5-> Timer
+            \item<6> Scheduler
+        \end{enumerate}
+    \end{itemize}
+
+    \enote{
+        \item Easily imported and managed via Cargo
+        \item Includes feature flags \so specify which parts of the library should be included
+        \item Parts of tokio:
+        \begin{enumerate}
+            \item I/O event loop: Handles I/O events and dispatches them to the tasks waiting for them
+            \item Timer: Runs tasks after a certain period of time
+            \item Scheduler: Executes the tasks on the different threads
+        \end{enumerate}
+        \item Enables the use of \rust{async}, \rust{await} and other features of asynchronous Rust
+        \item \rust{tokio::net} includes networking functions similar to \rust{std::net}
+    }
+\end{frame}
