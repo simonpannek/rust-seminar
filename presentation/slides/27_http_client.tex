@@ -1,0 +1,25 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Application Layer communication}
+    \begin{block}{Warp HTTP server}
+        \begin{minted}{Rust}
+            let client = reqwest::Client::new();
+
+            let response = client
+                .post(URL)
+                .json(&Data {
+                    number: 5,
+                    boolean: true,
+                })
+                .send()
+                .await
+                .expect("Sending request");
+
+            println!("{}", response.text().await.expect("Get text"));
+        \end{minted}
+    \end{block}
+
+    \enote{
+        \item Crate "Reqwest" enables sending simple HTTP requests
+        \item Requires some kind of runtime like Tokio
+    }
+\end{frame}

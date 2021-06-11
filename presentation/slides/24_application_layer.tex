@@ -1,0 +1,48 @@
+% !TeX root = ../main.tex
+\begin{frame}{Application Layer communication}
+    \center{
+        \begin{minipage}{4cm}
+            \begin{table}
+                \begin{tabular}{l}
+                    \toprule
+                    \textbf{OSI layers}           \\
+                    \midrule
+                    \begin{overprint}
+                        \onslide<1>
+                        Application Layer
+                        \onslide<2>
+                        \textbf{Application Layer}
+                    \end{overprint} \\
+                    Application Layer             \\
+                    Presentation Layer            \\
+                    Session Layer                 \\
+                    \begin{overprint}
+                        \onslide<1>
+                        \textbf{Transport Layer}
+                        \onslide<2>
+                        Transport Layer
+                    \end{overprint} \\
+                    Network Layer                 \\
+                    Data Link Layer               \\
+                    Physical Layer                \\
+                    \bottomrule
+                \end{tabular}
+            \end{table}
+        \end{minipage}
+    }
+
+    \enote{
+        \item Layers (just in case):
+        \begin{enumerate}
+            \item Application Layer: Network Process to Application
+            \item Presentation Layer: Data representation and Encryption
+            \item Session Layer: Interhost communication
+            \item Transport Layer: End-to-End connections
+            \item Network Layer: Path Determination and logical addressing
+            \item Data Link Layer: Physical addressing
+            \item Physical Layer: Media, signal and binary transmission
+        \end{enumerate}
+        \item Showcase how Tokio can be used together with higher level protocols
+        \item Hypertext Transfer Protocol (HTTP) for data transmission for the World Wide Web (usually based on TCP)
+    }
+\end{frame}

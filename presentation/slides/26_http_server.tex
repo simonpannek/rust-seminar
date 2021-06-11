@@ -1,0 +1,25 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Application Layer communication}
+    \begin{block}{Warp HTTP server}
+        \begin{minted}{Rust}
+            let filter = warp::'\textcolor{macro}{path!}'("data")
+                .and(warp::post())
+                .and(warp::body::json())
+                .map(|data: Data| format!("Received: {:?}", data));
+
+            warp::serve(filter).run(ADDRESS).await;
+        \end{minted}
+    \end{block}
+
+    \enote{
+        \item Crate "Warp" is a simple web framework built on another create called "Hyper"
+        \item Works together with Tokio
+        \item \rust{warp::Filter}:
+        \begin{enumerate}
+            \item Extracts data from a request, handles the data and sends a response back to the sender of the request
+            \item \rust{and}-method: Chains together two filters
+            \item \rust{map}-method: Takes a function as an argument, receives the extracted data and maps it to
+                  another value
+        \end{enumerate}
+    }
+\end{frame}

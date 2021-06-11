@@ -1,0 +1,18 @@
+% !TeX root = ../main.tex
+\begin{frame}[fragile]{Application Layer communication}
+    \begin{block}{Data struct}
+        \begin{minted}{Rust}
+            #[derive(Serialize, Deserialize, Debug)]
+            struct Data {
+                number: u32,
+                boolean: bool,
+            }
+        \end{minted}
+    \end{block}
+
+    \enote{
+        \item Crate "Serde" allows for simple serialize and deserialize implementation
+        \item Convert data instances from and to JSON (JavaScript Object Notation)
+        \item Required to send objects over HTML
+    }
+\end{frame}
