@@ -1,11 +1,11 @@
 % !TeX root = ../main.tex
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
-\section{Application layer communication}
-In chapter 2 and 3, transport layer protocols were used to explicitly send text messages formatted as byte slices from
-a client to a server. This may be enough for simple applications like a chat server, but in many cases another
-abstraction on top of that is needed to send special data like structs over a connection. This is where protocols
-belonging to the application layer come into place.
+\section{Application Layer communication} \label{application-layer-communication}
+In chapter \ref{networking-in-rust} and \ref{asynchronous-networking}, transport layer protocols were used to
+explicitly send text messages formatted as byte slices from a client to a server. This may be enough for simple
+applications like a chat server, but in many cases another abstraction on top of that is needed to direct special data
+like structs through a connection. This is where protocols belonging to the application layer come into place.
 
 The following chapter will give a small insight into the principle how the asynchronous communication using Tokio can
 also be used together with higher level protocols. In particular the Hypertext Transfer Protocol (HTTP), a protocol
@@ -34,7 +34,7 @@ Even though we do not want to use raw TCP communication to send our packages, HT
 means before being able to send the struct from the client to the server, we have to transform it from a \rust{struct}
 to a \rust{String} and back, a principle called serialization and deserialization.
 
-This is why we are going to use a crate called serde. Serde allows us to let our \rust{struct} derive \rust{Serialize}
+This is why we are going to use a crate called Serde. Serde allows us to let our \rust{struct} derive \rust{Serialize}
 and \rust{Deserialize}. This way the compiler is capable of providing a basic implementation to convert \rust{Data} to
 a JSON \rust{String} and the other way around. JSON stands for JavaScript Object Notation and is just a standard file
 format typically used for exactly this purpose.
@@ -45,24 +45,24 @@ printing the struct in a human readable format, typically used for debugging pur
 \subsection{HTTP communication}
 Now that it is possible to convert the struct into a format which is sendable over HTTP, next a server is needed to
 accept incoming requests. There are many crates, which enable you to accept and handle HTTP requests in Rust. For our
-HTTP server implementation, we are going to use a crate called warp.
+HTTP server implementation, we are going to use a crate called Warp.
 
 Warp is simple web server framework, which builds on top of the crate Hyper, a HTTP implementation for Rust
 \cite{warp-doc}. Warp makes use of asynchronous programming and seamlessly works together with Tokio. An important
-concept of warp are the so called filters: \rust{warp::Filter} is a struct, which extracts data from a request, handles
+concept of Warp are the so called filters: \rust{warp::Filter} is a struct, which extracts data from a request, handles
 the data and sends a response back to the sender of the request. The \rust{Filter} implements two important methods:
 
 First the method \rust{and}, which takes another \rust{Filter} as an argument and returns
-them as a new, combined \rust{Filter}. This way you can chain together multiple \rust{Filter} instances and filter
-requests more precisely.
+them as a new, combined \rust{Filter}. This way you are able to chain together multiple \rust{Filter} instances and
+filter requests more precisely.
 
 Secondly the method \rust{map}, which takes a function as an argument. This function receives the extracted data from
-the request and can map it to another value. This value in return gets sent back to the client sending the request.
+the request and can map it to another value. The value in return gets sent back to the client sending the request.
 
 \rust{Filter} also implements more methods useful for rejecting certain requests or customizing filters to take
-different sets of arguments in a request, but those methods will not be needed for our example.
+different sets of arguments in a request, but these methods will not be needed for our example.
 
-In \textcolor{teal}{Figure \ref{http-server}} you can find a small example implementation of a web server written using warp.
+In \textcolor{teal}{Figure \ref{http-server}} you can find a small example implementation of a web server written using Warp.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -78,8 +78,8 @@ warp::serve(filter).run(ADDRESS).await;
 \end{figure}
 
 First a \rust{Filter}, which matches a path of a possible request sent to the server, has to be created. Here the macro
-\nohighlight{warp::path!} can be used which, returns a \rust{Filter} matching the exact path segment. For our example
-we are going to send the data to the path "/data".
+\nohighlight{warp::path!} can be utilized, which returns a \rust{Filter} matching the exact path segment. For our
+example we are going to send the data to the path "/data".
 
 Next we have to specify, how the request exactly looks like. This enables us to automatically reject invalid requests.
 In this case, we only want to use a POST request, a method supported by HTTP and used to accept data sent in the body
@@ -88,12 +88,12 @@ and then combining both filters using the previously mentioned \rust{and} method
 
 When implementing the \rust{struct} which actually should get sent, we used serialization into the JSON format. This is
 why the web server should expect a body encoded in JSON and try to parse the data into a \rust{Data} instance. A
-\rust{Filter} which does just that can be created using the function \rust{warp::body::json()} and then again be
+\rust{Filter}, which does just that, can be created using the function \rust{warp::body::json()} and then again be
 combined using \rust{and}.
 
-Finally the extracted \rust{Data} instance can be mapped to a response, which can be send back to the client. Here a
-simple formatting to a \rust{String} using the \nohighlight{format!} macro works fine. The \rust{{:?}} brackets the the
-formatting macro to use the \rust{std::fmt::Debug} trait derived by \rust{Data}.
+Finally the extracted \rust{Data} instance can be mapped to a response, which in result can be sent back to the client.
+Here a simple formatting to a \rust{String} using the \nohighlight{format!} macro works fine. The \rust{{:?}} brackets
+the the formatting macro to use the \rust{std::fmt::Debug} trait derived by \rust{Data}.
 
 The function \rust{warp::serve} takes the \rust{Filter} defined above as an argument and creates a new instance of the
 struct \rust{warp::Server}. This server represents a web server filtering requests according to the filter given at
@@ -105,9 +105,9 @@ the type \rust{([u8, 4], u16)}, a tuple with the IP address as a byte slice with
 as an unsigned short.
 
 To send the struct to this web server, we need to create a HTTP client. Reqwest is a crate often used for sending
-simple HTTP requests to a web server and similar to warp also makes use of asynchronous methods and requires some kind
+simple HTTP requests to a web server and similar to Warp also makes use of asynchronous methods and requires some kind
 of runtime like Tokio, at least when using its default API. In \textcolor{teal}{Figure \ref{http-client}} there is an
-example implementation of a reqwest HTTP client sending a custom struct of the type \rust{Data} to the warp server.
+example implementation of a Reqwest HTTP client sending a custom struct of the type \rust{Data} to the Warp server.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}

@@ -1,29 +1,31 @@
 % !TeX root = ../main.tex
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
-\section{Asynchronous networking using Tokio}
-In the chapter before basic examples for TCP and UDP communication in Rust were shown. In those programs the current
+\section{Asynchronous networking using Tokio} \label{asynchronous-networking}
+In the chapter before basic examples for TCP and UDP communication in Rust were shown. In these programs the current
 thread was blocked when waiting for new connections or incoming messages. This not only results into the program having
 to wait for a new message to continue executing the code, it also means that you have to create a new thread for each
-connection, if you want to listen to multiple connections at once. This principle is called sequential programming. In
+connection, if you want to listen to multiple connections at once. This principle is called synchronous programming. In
 contrast to that there are no blocking functions in asynchronous programming. Instead results are wrapped in so called
 futures which represent a result of an otherwise blocking function. This result can be unwrapped when it is actually
-needed instead of waiting for the execution in advance. \cite{c18network}
+needed instead of waiting for the execution in advance. \cite{async-rust}
 
 \subsection{The Tokio crate}
 The core library of Rust is kept very small. Instead the package manager Cargo allows for easy import of third party
-packages. This way those extensions are not bound to the release cycle of Rust and also breaking changes will just
-affect one single package instead of the whole library. For compatibility reasons a project can keep using an older
+packages. This way these extensions are not bound to the release cycle of Rust and also breaking changes will just
+affect one single package instead of the whole library. For compatibility reasons a project could keep using an older
 version of a package while still upgrading the standard library. The packages of Rust are called crates.
 
 A crate is similar to a binary or library. You can add the name and the version to the dependencies of a project in
 order to import it. If you do not want to compile and include a whole library, some crates also offer feature flags
 deciding which parts of the library should be included.
 
-To introduce asynchronous programming to Rust, you usually want to use a crate which enables async methods. In this
-chapter the crate Tokio is used. As the documentation \cite{tokio-doc} states, Tokio is a runtime for writing
-reliable network applications. It offers tools for working with asynchronous tasks as well as APIs for typical blocking
-operations suchs as sockets and filesystem operations.
+To introduce asynchronous programming to Rust, you usually want to use a crate which implements a runtime for the
+execution of asynchronous functions. Rust already provides a minimal implementation for async code, but a lot of
+keyparts like executors, tasks and reactors are issing. Crates like Tokio build on top of these basic implementations,
+filling in the gaps of necessary parts which are not implemented yet. As the documentation \cite{tokio-doc} states,
+Tokio is a runtime for writing reliable network applications. It offers tools for working with asynchronous tasks as
+well as APIs for typical blocking operations suchs as sockets and filesystem operations.
 
 A task in the context of a Tokio program is a non-blocking piece of code. You can use the \rust{tokio::task::spawn}
 method to schedule the task on the Tokio runtime and use \rust{await} to wait for the returned value. This is a typical
@@ -34,12 +36,15 @@ the tasks which are waiting for them, a timer to run tasks after a certain perio
 actually executes the tasks on the different threads. To enable the Tokio runtime, you can mark the main function with
 the \rust{async} keyword and add the \mintinline{rust}{#[tokio::main]} macro above.
 
-The scheduler swaps around all tasks which need to be run. This means there can be more tasks than threads whilst still
-allowing concurrent execution of all tasks. To tell the scheduler that the program is currently waiting for another
-task to finish before it can continue running, you can call \rust{await} on the method. This effectively stops the
-execution of the current task, waits for the other task to finish and then unwraps the returned result. Contrary to an
-execution without the Tokio runtime, the scheduler knows when the current task can continue running and uses the
-otherwise unused CPU time by letting another task run instead.
+The scheduler swaps around all tasks which need to be run. This means there might exist more tasks than threads at the
+same time whilst still allowing concurrent execution of all tasks. To tell the scheduler that the program is currently
+waiting for another task to finish before it can continue running, you can call \rust{await} on the method. This
+effectively stops the execution of the current task, waits for the other task to finish and then unwraps the returned
+result. Contrary to an execution without the Tokio runtime, the scheduler knows when the current task can continue
+running and uses the otherwise unused CPU time by letting another task run instead.
+
+The following chapters are going to use the crate Tokio mentioned before as a runtime for all the asynchronous code
+provided in the examples.
 
 \subsection{Programming with futures}
 Let us now take a look at the small demonstration of futures in \textcolor{teal}{Figure \ref{udp-sender}}.
@@ -75,11 +80,11 @@ The declared types of functions play an important role when working with Tokio. 
 of \textcolor{teal}{Figure \ref{future}} also includes the entire function definitions.
 
 The main function is marked as \rust{async} and the Tokio macro is used to create a runtime for our program to run in.
-In \textcolor{orange}{line 10}, the asynchronous function \rust{async_function} is called. The value returned by the
-function has the type \rust{std::future::Future}, which wraps the value going to be returned after the computation. The
-\rust{Future} is saved in the variable \rust{future1}. This way the Tokio runtime actually decides when to evaluate the
-function. If \rust{async_function} was not marked as an asynchronous function, the main thread executing the program
-would enter the function, completely evaluate it and after that continue executing the main function.
+In \textcolor{orange}{line 10}, \rust{async_function} is called. The value returned by the function has the type
+\rust{std::future::Future}, which wraps the value going to be returned after the computation. The \rust{Future} is
+saved in the variable \rust{future1}. This way the Tokio runtime actually decides when to evaluate the function. If
+\rust{async_function} was not marked using \rust{async}, the main thread executing the program would enter the
+function, completely evaluate it and after that continue executing the main function.
 
 The type of \rust{future2} is also a \rust{Future}, the only difference being that it uses an \rust{async} block
 instead of an extra function to define the asynchronous code.
@@ -120,9 +125,9 @@ Finished task1
 \end{minted}
 
 \subsection{Asynchronous TCP communication}
-Tokio offers the module \rust{tokio::net}, which contains a TCP and UDP networking API similar to the one of the
-standard library used in chapter 2. Those functions are marked as \rust{async}, blending in with the rest of the Tokio
-ecosystem.
+Tokio offers the module \rust{tokio::net}, which contains a TCP and UDP network API similar to the one of the standard
+library used in chapter \ref{networking-in-rust}. These functions are marked as \rust{async}, blending in with
+the rest of the Tokio ecosystem.
 
 Let us first use Tokio to spawn a new task which handles a connection by reading all incoming messages and printing the
 output to the command line. The code of \textcolor{teal}{Figure \ref{async-tcp-client-handeling}} implements basic
@@ -194,13 +199,14 @@ exact type of the \rust{Ok} enum variant, the compiler is able to infer the retu
 \rust{?} operator. Another way to handle this would be to use the \rust{expect} method instead or create an extra
 asynchronous function instead of using \rust{async} blocks. \cite{async-rust}
 
-As in chapter 2 we can now wrap our code from \textcolor{teal}{Figure \ref{async-tcp-client-handeling}} into a function
-called \rust{handle_client} to be able to call it in \textcolor{teal}{Figure \ref{async-tcp-listener}}. Next we are
-going to open the TCP streams and call the \rust{handle_client} with the stream as an argument. It was already
-mentioned before that having TCP connections to multiple clients would require a thread for each connection. Tokio
-solves this problem as the event loop manages and listens to every connection. Instead of creating a thread for each
-connection it is only required to spawn a task for each TCP stream. That is why the code example of Figure
-\textcolor{teal}{\ref{async-tcp-listener}} supports connecting to multiple clients.
+As in chapter \ref{networking-in-rust} we are now able to wrap our code from
+\textcolor{teal}{Figure \ref{async-tcp-client-handeling}} into a function called \rust{handle_client} to be able to
+call it in \textcolor{teal}{Figure \ref{async-tcp-listener}}. Next we are going to open the TCP streams and call the
+\rust{handle_client} with the stream as an argument. It was already mentioned before that having TCP connections to
+multiple clients would require a thread for each connection. Tokio solves this problem as the event loop manages and
+listens to every connection. Instead of creating a thread for each connection it is only required to spawn a task for
+each TCP stream. This is why the code example of Figure \textcolor{teal}{\ref{async-tcp-listener}} supports connecting
+to multiple clients.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -217,7 +223,7 @@ loop {
 \end{figure}
 
 First a \rust{tokio::net::TcpListener} is created by binding it to the address saved in the \rust{&str} constant
-\rust{ADDRESS}. This value corresponds to the IP address and port the server should listen to. The future result is
+\rust{ADDRESS}. The value corresponds to the IP address and port the server should listen to. The future result is
 then unwrapped using \rust{await} as well as \rust{?} and saved to the variable \rust{listener}. As the
 \rust{TcpListener} of Tokio does not implement the \rust{incoming} method, we have to call the \rust{accept} method of
 the listener ourselves. This method again returns a tuple including the \rust{TcpStream} and the address of the new

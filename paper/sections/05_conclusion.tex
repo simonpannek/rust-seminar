@@ -2,12 +2,12 @@
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
 \section{Conclusion}
-In conclusion, Rust can be a very powerful language for writing applications to run on network servers. It is often
-times very important to deploy a secure and efficient language in the backend of an application as the server
-underlying a service can be considered the bottleneck most of the times when it comes to verifying and handling user
-requests. Slowing down or even outages of such applications can cause a lot of damage and should be avoided at any
-cost. Security vulnerabilities can also cause interruption of service or even accidental disclosure of sensible user
-data, depending on what type of application is affected.
+In conclusion, Rust can be a very powerful language for writing programs to run on network servers. It is often times
+very important to deploy a secure and efficient language in the backend of an application as the server underlying a
+service can be considered the bottleneck most of the times when it comes to verifying and handling user requests.
+Slowing down or even outages of such applications might cause a lot of damage and should be avoided at any cost.
+Security vulnerabilities could also cause interruption of service or even accidental disclosure of sensible user data,
+depending on what type of application is affected.
 
 Here Rust's checks at compile time come to shine, because many of the common security issues based on memory unsafety
 can be avoided in advance. Also shifting most of these checks into the process of compiling the code, Rust does not
@@ -35,8 +35,8 @@ usually want to parse and verify the input received, before handling the message
 incoming data.
 
 One final question, which might come up, is why Rust is not being used more for networking applications. In the
-introduction it was mentioned that most networking APIs are writting in C or C++. The Rust Survey of 2020 suggests,
-that a huge issue is the adoption of the language in companies \cite{rust-survey}. This makes sense as switching the
-language of an existing code base requires a lot of refactoring and introducing a new language adds the overhead of the
+introduction it was mentioned that most network APIs are writting in C or C++. The Rust Survey of 2020 suggests, that a
+huge issue is the adoption of the language in companies \cite{rust-survey}. This makes sense as switching the language
+of an existing code base requires a lot of refactoring and introducing a new language adds the overhead of the
 employees first having to learn this new language. Another common reason is the steep learning curve related to the
 rather strict concepts of ownership and lifetimes the compiler enforces.
