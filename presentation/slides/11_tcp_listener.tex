@@ -5,11 +5,9 @@
             let listener = TcpListener::bind(ADDRESS)
                 .expect("Bind to address");
             
-            for stream in listener.incoming() {
-                if let Ok(stream) = stream {
-                    handle_client(stream)
-                        .expect("Handle client");
-                }
+            for stream in listener.incoming().flatten() {
+                handle_client(stream)
+                    .expect("Handle client");
             }
         \end{minted}
     \end{block}
