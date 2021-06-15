@@ -4,11 +4,12 @@ const ADDRESS: &str = "127.0.0.1:8080";
 
 fn main() -> std::io::Result<()> {
     let socket = UdpSocket::bind("0.0.0.0:0")?;
+    let stdin = stdin();
 
     loop {
         let mut buf = String::new();
 
-        match stdin().read_line(&mut buf) {
+        match stdin.read_line(&mut buf) {
             Ok(_) => {
                 // Close connection if client writes "exit"
                 if buf.trim().to_lowercase() == "exit" {

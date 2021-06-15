@@ -12,6 +12,7 @@ struct Data {
 async fn main() {
     let client = reqwest::Client::new();
 
+    // Send serialized data as a request and unwrap response
     let response = client
         .post(URL)
         .json(&Data {

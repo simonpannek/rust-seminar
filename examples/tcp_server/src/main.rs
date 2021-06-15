@@ -37,9 +37,7 @@ fn handle_client(stream: TcpStream) -> std::io::Result<()> {
 fn main() {
     let listener = TcpListener::bind(ADDRESS).expect("Could not bind to address");
 
-    for stream in listener.incoming() {
-        if let Ok(stream) = stream {
-            handle_client(stream).expect("Could not handle client");
-        }
+    for stream in listener.incoming().flatten() {
+        handle_client(stream).expect("Could not handle client");
     }
 }
