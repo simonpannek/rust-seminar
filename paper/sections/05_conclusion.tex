@@ -2,40 +2,39 @@
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
 \section{Conclusion}
-In conclusion, Rust can be a very powerful language for writing programs to run on network servers. It is often times
-very important to deploy a secure and efficient language in the backend of an application as the server underlying a
-service can be considered the bottleneck most of the times when it comes to verifying and handling user requests.
-Slowing down or even outages of such applications might cause a lot of damage and should be avoided at any cost.
-Security vulnerabilities could also cause interruption of service or even accidental disclosure of sensible user data,
-depending on what type of application is affected.
+In conclusion, Rust is a very powerful language for writing programs to run on network servers. It is often very
+important to deploy a secure and efficient language in the backend of an application as the server underlying a service
+can be considered the bottleneck most of the time when it comes to verifying and handling user requests. Slowing down
+or even outages of such applications might cause a lot of damage and should be avoided at any cost. Security
+vulnerabilities could also cause interruption of service or even accidental disclosure of sensible user data, depending
+on which type of application is affected.
 
 Here Rust's checks at compile time come to shine, because many of the common security issues based on memory unsafety
-can be avoided in advance. Also shifting most of these checks into the process of compiling the code, Rust does not
-check for things like ownership and borrowing at runtime, thus making the executable even faster while still having
-all safety features in place.
+can be prevented in advance. In addition, shifting most of these checks into the process of compiling the code, Rust
+does not check for things like ownership and borrowing at runtime, thus making the executable even faster while still
+retaining all safety features.
 
-In the course of the paper we have taken a look at general problems when working with network applications in other
-programming languages and the approach of Rust how to work around these boundaries. The standard library of Rust was
+In the course of this paper we have taken a look at general problems when working with network applications in other
+programming languages and the approach of using Rust to work around these boundaries. The standard library of Rust was
 introduced and it was demonstrated how it can be used to establish a connection between a client and a server using the
-Transmission Control Protocol (TCP). After that an User Datagram Protocol (UDP) client and server implementation was
-shown, which even allowed multiple clients to message the receiver at the same time. Next it was taken a look at
-asynchronous programing and how the introduction of a custom scheduler can replace blocking operations by swapping
-out tasks, which have reached a \rust{await} point and have to wait for another task to evaluate. In this context the
-synchronous TCP implementation from before was converted into an asynchronous one and the advantage of not having to
-create a thread for each connection, that should be maintained at the same time, was mentioned. In the end a
-\rust{struct} was sent from a client to a server using the Hypertext Transfer Protocol (HTTP) in order to show how
-asynchronous programming can also be applied in network applications on the application layer.
+Transmission Control Protocol (TCP). After that an User Datagram Protocol (UDP) client and server implementation were
+shown, which allowed multiple clients to message the receiver at the same time. Next we took a look at asynchronous
+programing and how the introduction of a custom scheduler can replace blocking operations by swapping out tasks, which
+have reached an \rust{await} point and have to wait for another task to evaluate. In this context, the synchronous TCP
+implementation from earlier was converted into an asynchronous one and the advantage of not having to create a thread
+for each connection, that should be maintained at the same time, was demonstrated. In the end a \rust{struct} was sent
+from a client to a server using the Hypertext Transfer Protocol (HTTP) in order to show how asynchronous programming
+can also be used in network applications on the application layer.
 
-There are many aspects, which were not considered in the chapters before. When it comes to scalability one might
-consider to use a decentralized approach featuring loadbalancing with multiple servers handling connections and
-possibly communicating with each other in the background. Also a lot of possible security vulnerabilities were not
-considered yet: Rust may be able to avoid security issues caused by null pointers, dangling pointers or data races, but
-this are not the only places where errors can occur. By instance if a server is accepting input from other clients, you
-usually want to parse and verify the input received, before handling the message instead of blindly trusting the
-incoming data.
+There are many aspects which were not considered in these chapters before. To improve scalability one might consider to
+use a decentralized approach featuring loadbalancing with multiple servers handling connections and possibly
+communicating with each other in the background. Also a lot of possible security vulnerabilities were not considered
+yet: Rust is able to avoid security issues caused by null pointers, dangling pointers or data races, but these are not
+the only types of errors that can occur. For instance if a server is accepting input from other clients, you should
+usually parse and verify the input received before handling the message, instead of blindly trusting the incoming data.
 
-One final question, which might come up, is why Rust is not being used more for networking applications. In the
-introduction it was mentioned that most network APIs are writting in C or C++. The Rust Survey of 2020 suggests, that a
+One final question which might come up is why Rust is not used more frequently for networking applications. In the
+introduction it was mentioned that most network APIs are written in C or C++. The Rust Survey of 2020 suggests, that a
 huge issue is the adoption of the language in companies \cite{rust-survey}. This makes sense as switching the language
 of an existing code base requires a lot of refactoring and introducing a new language adds the overhead of the
 employees first having to learn this new language. Another common reason is the steep learning curve related to the

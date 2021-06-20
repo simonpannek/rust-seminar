@@ -2,69 +2,69 @@
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
 \section{Introduction} \label{introduction}
-Many modern devices used today are using the internet to communicate with each other. This concept of connecting to
-each other dates back to the 1960s when the protocols for one of the first computer networks, the ARPANET, were
-developed. It allowed large existing host computers with different configurations to communicate with each other, even
-allowing indirect package transmission by using the hosts as a bridge between two not directly connected hosts
-\cite{f70arpa}. Since then new protocols have been introduced, additional security, for example through encryption was
-added and a lot of these changes were standardized in order to let devices produced by diverse manufacturers seamlessly
-work together.
+Many modern devices are using the internet to communicate with each other. This concept of connecting to each other
+dates back to the 1960s when the protocols for one of the first computer networks, the ARPANET, were developed. It
+allowed large existing host computers with different configurations to communicate with each other, even allowing
+indirect package transmission by using the hosts as a bridge between two not directly connected hosts \cite{f70arpa}.
+Since then, new protocols have been introduced, additional security, for example through encryption was added and a lot
+of these changes were standardized in order to let devices produced by diverse manufacturers seamlessly work together.
 
-One advantage of standardization is that almost every common used programming language supports these frequently
-deployed network protocols, whether natively in its standard library or through simple imports of third party
-libraries. All these options raise the question which language to use for own application purposes. There is no right
-answer to this question as it depends on the particular use case, the environment where it has to run, time and cost of
-development and even more. This paper goes into detail what advantages the programming language Rust has to offer when
-it comes to running it as a backend of a network application and showcases simple code examples about communication
-using the protocols TCP and UDP.
+One advantage of standardization is that almost every popular programming language supports these frequently deployed
+network protocols, whether natively in its standard library or through simple imports of third party libraries. All
+these options raise the question what language to use for own application purposes. There is no right answer to this
+question as it depends on many aspects such as the particular use case, the running environment, time and cost of
+development. This paper highlights the advantages the programming language Rust has to offer when it comes to running
+it as a backend of a network application and showcases simple code examples about communication using the protocols TCP
+and UDP.
 
 Rust is an open-source programming language developed by Mozilla introducing memory-safety without a runtime or garbage
-collection. Its standard library provides networking primitives for basic TPC/UDP communication, allowing socket
+collection. Its standard library provides networking primitives for basic TCP/UDP communication, enabeling socket
 communication and error handling out of the box. \cite{rust-language}
 
-There are usually different approaches when getting to picking a language for networking, especially if you directly
-want to work with a transport protocol and a custom application protocol on top of it.
+There are usually different approaches when getting to pick a language for networking, especially if you directly want
+to work with a transport protocol and a custom application protocol on top of it.
 
-As one option you can use a scripting language like Python or JavaScript. With such languages you are able to easily
+One option would be using a scripting language like Python or JavaScript. With such languages you are able to easily
 import libraries to give you a basic network API and they offer a simple syntax allowing fast prototyping. As these
-languages usually are interpreted, they often perform much slower compared to executing compiled binary files as the
+languages usually are interpreted, they often operate much slower compared to executing compiled binary files as the
 instructions first have to get translated by the interpreter before being run.
 
-If speed and scalability is an important factor (as it is most of the time), a compiled language could be a good choice.
-This is the reason why many network libraries are written in C or C++. These two languages do not guarantee memory
-safety. If a programmer makes a mistake, the compiler does not check for undefined behavior and just falls back to some
-default action and can lead to corruption of memory.
+If speed and scalability are important factors (as they are most of the time), a compiled language could be a good
+choice. This is the reason why many network libraries are written in C or C++. However, these two languages do not
+guarantee memory safety. Mistakes by the programmer can result in memory usage errors like invalid memory accesses or
+memory leaks.
 
-This might be a problem, in particular when working with network applications as you often have to read and write to
-buffers concurrently. For example if incoming information is just written to a buffer with no checks for the buffer
-size, an attacker might be able to overwrite data in the memory and change the flow of the program. This is called a
-buffer overflow attack and can lead to an attacker being able to control the host running the network application.
-\cite{c00buffer}
+This might be a problem, in particular when working with network applications as you often have to read from and write
+to buffers concurrently. For example if incoming information is just written to a buffer without checking the buffer
+size, an attacker might be able to overwrite data in the memory and change the control flow of the program. This is
+called a buffer overflow attack and can lead to an attacker being able to control the host running the network
+application. \cite{c00buffer}
 
-Another problem with C and C++ is thread safety. Parallelization and preventing race conditions is completly up to the
+Another problem with C and C++ is thread safety. Parallelization and preventing race conditions is completely up to the
 programmer. When sharing data between multiple threads without proper synchronization, many errors will only occur when
 in production with a lot of concurrent access and a higher load on the server.
 
-Rust, on the other hand, is also a compiled language, but the compiler guarantees for memory- and thread-safety. This
+Rust, on the other hand, is also a compiled language, but the compiler guarantees for memory- and thread safety. This
 means it profits from the fast speed compiled languages have and also prevents most of the vulnerabilities mentioned
 above from happening, thanks to Rust rejecting to compile code which could introduce such issues.
 
-Network operations are always prune to failure, because the success of such an operation depends on outside factors
-like other hosts and a stable network connection. Rust cannot stop these errors from happening in advance as it has to
-rely on system calls of the operating system, instead it wraps the returned information of such unsafe calls into
-enums of the type \rust{std::result::Result}. This allows the use of pattern matching to check if an operation has
-failed and enables easy ways to handle this failure.
+Network operations are always prone to failure because the success of such an operation depends on outside factors like
+other hosts and a stable network connection. Rust cannot stop these errors from happening in advance as it has to rely
+on system calls of the operating system. Instead it wraps the returned information of such unsafe calls into enums of
+the type \rust{std::result::Result}. This enum forces the programmer to handle errors in some kind of way as it is
+required to unwrap the \rust{Result} before being able to access the returned value, preventing the program to continue
+running in a faulty state.
 
-Another selling point of Rust is its well integrated package manager Cargo, making it possible to easily import third
-party libraries called crates, keeping them up to date, shipping and integrating them into an own application.
+Another selling point of Rust is its well integrated package manager Cargo, making it possible to easily import, update
+and integrate third party libraries called crates and ship them with an own application.
 
-To see, how theses benefits apply in basic TCP and UDP communication, chapter \ref{networking-in-rust} will first give a
-short overview about ownership, borrowing and lifetimes and after that explain the implementations of a TCP client and
-server as well as an UDP sender and receiver, programmed in Rust using the standard library. Chapter
+To see, how these benefits apply in basic TCP and UDP communication, chapter \ref{networking-in-rust} will first give a
+short overview about ownership, borrowing and lifetimes. After that it will explain the implementations of a TCP client
+and server as well as an UDP sender and receiver, each programmed in Rust using the standard library. Chapter
 \ref{asynchronous-networking} is going to explain, why the implementations of the previous chapter are not always
 optimal as the standard library uses blocking operations for network calls. As a solution, asynchronous programming
-using a library called Tokio and the principle of futures is going to get introduced. After that an asynchronous
-server and client code example is shown to explain possible difference and advantages compared to a synchronous and
-blocking approach. Chapter \ref{application-layer-communication} leaves the transport layer where protocols like TCP
-and UDP are explicitly used and is going to shift the focus to higher-level communication on the application layer. In
-the end, everything discussed is going to be summarized.
+using a library called Tokio and the principle of futures are introduced. After that, an asynchronous server and client
+code example is shown to explain possible differences and advantages compared to a synchronous and blocking approach.
+Chapter \ref{application-layer-communication} leaves the transport layer where protocols like TCP and UDP are
+explicitly used and is going to shift the focus to higher-level communication on the application layer. In the end
+the discussed results will get summarized.
