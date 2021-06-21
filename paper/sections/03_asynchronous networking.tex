@@ -226,14 +226,14 @@ loop {
 \end{figure}
 
 First, a \rust{tokio::net::TcpListener} is created by binding it to the address saved in the \rust{&str} constant
-\rust{ADDRESS}. The value corresponds to the IP address and port the server should listen to. The future result is
-then unwrapped using \rust{await} as well as \rust{?} and saved to the variable \rust{listener}. As the
+named \rust{ADDRESS}. The value corresponds to the IP address and port the server should listen to. The future result
+is then unwrapped using \rust{await} as well as \rust{?} and saved to the variable \rust{listener}. As the
 \rust{TcpListener} of \textit{Tokio} does not implement the \rust{incoming} method, we have to call the \rust{accept}
 method of the listener ourselves. This method returns a tuple including the \rust{TcpStream} and the address of the new
 connection, wrapped by a \rust{Result} to handle errors and a \rust{Future} to make the waiting operation non-blocking.
 After that, the received stream can be given to our \rust{handle_client} function, which spawns the new task handling
-the client. As the client handling runs in an extra task, the program can continue to run and accept new connections
-without having to wait for the current one to disconnect.
+the current user. As the client handling runs in an extra task, the program can continue to run and accept new
+connections without having to wait for the current one to disconnect.
 
 To connect to this server one could just use the TCP client of \textcolor{teal}{Figure \ref{tcp-client}}, as both
 servers use the same protocol and can work together interchangeably. To showcase how the \textit{Tokio} library affects
@@ -295,10 +295,10 @@ of the loop.
 
 When running the TCP client, the asynchronous client does not differ as much from the synchronous client as the server
 implementations differ from each other. The server implementation can use the scheduling from \textit{Tokio} to handle
-multiple connections at once. The client on the other hand is idle while waiting for input on the command line anyway
-because it does not have any additional tasks. When expanding the implementation to a complete chat client which can
-both send and receive messages, a second task would be needed to listen for new data on the connection. Here an
-asynchronous environment would be more useful.
+multiple connections at once. The client on the other hand is idle while waiting for input on the command line because
+it does not have any additional tasks. When expanding the implementation to a complete chat client which can both send
+and receive messages, a second task would be needed to listen for new data on the connection. Here an asynchronous
+environment would be more useful.
 
 \subsection{Asynchronous UDP communication}
 Concerning asynchronous UDP communication, \textit{Tokio} offers the \rust{struct} \rust{tokio::net::UdpSocket} which
