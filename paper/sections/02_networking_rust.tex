@@ -6,21 +6,21 @@ As it was already mentioned before, Rust uses verification at compile time to st
 possibly unsafe could happen at runtime without being explicitly marked as unsafe. To check efficiently for any of
 these unsafe memory accesses or possible data races, Rust uses the so-called ownership system as well as the principles
 of borrowing and lifetimes. It is crucial to be familiar with these concepts before actually starting to implement an
-own program communicating over the network. Otherwise many compiler errors will not seem rational.
+own program communicating over the network. Otherwise, many compiler errors will not seem rational.
 
-\subsection{Ownership, borrowing and lifetimes}
-In Rust a part of the code can own a piece of memory. When a function is called with an owned value, the piece of
+\subsection{Ownership, borrowing, and lifetimes}
+In Rust, a part of the code can own a piece of memory. When a function is called with an owned value, the piece of
 memory gets moved into that function and the code calling it is not allowed to access the variable after it was moved.
 Sometimes a function does not need complete access to a value, in which case it is also sufficient to obtain a
 reference to the value by borrowing from it using the \rust{&} operator. This enables the code calling the function to
-still be able to access the piece of memory afterwards. If the callee needs to modify the value, a mutable reference
-has to be created. In order to avoid data races it is only allowed to have a single mutable reference to a variable at
+still be able to access the piece of memory afterward. If the callee needs to modify the value, a mutable reference has
+to be created. In order to avoid data races, it is only allowed to have a single mutable reference to a variable at
 once.
 
-This can be really useful when working with network applications as it prevents the occurence of data races if a thread
-tries to read from or write to a buffer while another thread is already writing to it.
+This can be useful when working with network applications as it prevents the occurrence of data races if a thread tries
+to read from or write to a buffer while another thread is already writing to it.
 
-The Rust compiler does not check for illegal array accesses but unlike in C the program exits in a controlled manner
+The Rust compiler does not check for illegal array accesses but unlike in C, the program exits in a controlled manner
 (this is called a "panic") if the program tries to access an index which is out of bounds. This does not prevent buffer
 overflows from taking place in advance, but at least the program stops executing immediately instead of letting it
 happen and possibly introducing security issues.
@@ -28,20 +28,20 @@ happen and possibly introducing security issues.
 Variables usually have a lifetime determined by the code block it was created in. If a variable falls out of scope, the
 corresponding memory segment is freed automatically. If a value gets moved into another function, its lifetime changes
 to the scope of the new function. Combined with the system of ownership, this can prevent dangling references, illegal
-memory accesses and memory leaks from happening at compile time. \cite{c15safe}
+memory accesses, and memory leaks from happening at compile time. \cite{c15safe}
 
 \subsection{TCP communication}
 The Transmission Control Protocol (TCP) is used for reliable inter-process communication between two systems connected
-through a network. You can use it to send a continuous stream of octets to another host. In order to check whether the
+through a network. It can be used to send a continuous stream of octets to another host. In order to check whether the
 data was received by the other system, it assigns a sequence number to each octet sent and waits for an acknowledgment
 (ACK) from the receiving user. If no ACK is received in a certain amount of time, the data is sent again. The receiving
 host can also use the sequence number to eliminate duplicates and order the segments the right way. \cite{RFC0793}
 
-The module \rust{std::net} of the Rust standard library already implements this protocol, so you can work with these
-abstractions independent of what plattform the code is currently running on. To demonstrate this in a better way, we
+The module \rust{std::net} of the Rust standard library already implements this protocol, so one can work with these
+abstractions independently of what platform the code is currently running on. To demonstrate this in a better way, we
 are going to implement a small TCP server that accepts connections and prints incoming messages as well as a TCP
 client, which connects to our server and sends messages from the command line to it.
-\textcolor{teal}{Figure \ref{tcp-client-handeling}} demonstrates how messages sent to a \rust{std::net::TcpStream} can
+\textcolor{teal}{Figure \ref{tcp-client-handling}} demonstrates how messages sent to a \rust{std::net::TcpStream} can
 be received and printed for the user to read.
 
 \begin{figure}[ht]
@@ -63,42 +63,42 @@ loop {
 }
     \end{minted}
     \caption{TCP client handling}
-    \label{tcp-client-handeling}
+    \label{tcp-client-handling}
 \end{figure}
 
 The variable \rust{stream} has the type \rust{TcpStream} and represents a connection between two hosts. Data is being
-transmitted when you write it to the stream and the other host can access the received information by reading from the
+transmitted when writing it to the stream and the other host can access the received information by reading from the
 stream on their side.
 
-As network operations might fail due to multiple reasons (for instance network failure, package loss, insufficent
+As network operations might fail due to multiple reasons (for instance network failure, package loss, insufficient
 permissions, etc.), these functions usually return an instance of the enum \rust{std::io::Result<T>}. If the call was
 successful, the returned value corresponds to the returned data, wrapped by the enum variant \rust{Ok(T)}. However, if
 the call has failed, the returned value corresponds to the error value, wrapped by the enum variant \rust{Err(Error)}.
 
 In \textcolor{orange}{line 1} a reader of the type \rust{std::io::BufReader} is created. It can be inefficient to read
-from the stream with small and repeated calls. In this example we want to read whole lines from the stream, so the
-reader is able to keep the data in its in-memory buffer until a whole line was received.
+from the stream with small and repeated calls. Here we want to read whole lines from the stream, so the reader is able
+to keep the data in its in-memory buffer until a whole line was received.
 
 Now the example continues to loop and wait for a new message until the connection is closed. \rust{buf} is a mutable
 \rust{String} new messages get written into. In \textcolor{orange}{line 6} the result of the call
 \rust{reader.read_line(&mut buf)} is matched.
 
-In case the call is successful but the amount of read bytes is equal to 0, this means that the connection was closed
-and we can break out of the loop. If at least one byte is read, the received line is written into \rust{buf} and the
+In case the call is successful but the amount of read bytes is equal to 0 it means that the connection was closed and
+we can break out of the loop. If at least one byte is read, the received line is written into \rust{buf} and the
 program enters the second match arm, writing the content of the buffer to the command line using the
 \nohighlight{print!} macro.
 
 If it has failed, the error value is returned and the program enters the third match arm. Here the error message is
-printed to the error output and the program tries to shutdown the stream using \rust{stream.shutdown(Both)?}. This
+printed to the error output and the program tries to shut down the stream using \rust{stream.shutdown(Both)?}. This
 method takes an enum of the type \rust{std::net::Shutdown} and decides how the stream should get closed. \rust{Both}
 means that both the reading and the writing portions of the stream should be shut down. The \rust{?} operator tries to
 unwrap the \rust{Result} returned by the method, returning from the whole function immediately if the result is equal
-to an \rust{Err}. Otherwise the program ignores the result and simply breaks out of the loop.
+to an \rust{Err}. Otherwise, the program ignores the result and simply breaks out of the loop.
 
-The example in \textcolor{teal}{Figure \ref{tcp-client-handeling}} can be used to handle a connection to a single host
-and print all the received data until the connection is closed. To actually run the code, we still have to initialize
+The example in \textcolor{teal}{Figure \ref{tcp-client-handling}} can be used to handle a connection to a single host
+and print all the received data until the connection is closed. To run the code, we still have to initialize
 the stream in the first place. As a matter of simplification, let us assume that the code of
-\textcolor{teal}{Figure \ref{tcp-client-handeling}} is now wrapped into a function called \rust{handle_client}, taking
+\textcolor{teal}{Figure \ref{tcp-client-handling}} is now wrapped into a function called \rust{handle_client}, taking
 the handled \rust{TcpStream} as an argument. We are now able to call this function in the code of
 \textcolor{teal}{Figure \ref{tcp-listener}}.
 
@@ -127,15 +127,15 @@ is found and returns the \rust{TcpStream} and the address of the other host if s
 returns an iterator over new connections received by the listener. Iterating over it is equivalent to repeatedly
 calling \rust{accept} on the same listener. As opening a TCP connection could fail, these connections are wrapped into
 the type \rust{Result}. The method \rust{flatten} called on the iterator flattens the iterator of results, implicitly
-converting \rust{Err} values into empty iterators, \rust{Ok} values into iterators of size 1 and chaining the inner
+converting \rust{Err} values into empty iterators, \rust{Ok} values into iterators of size 1, and chaining the inner
 iterators together again. This means invalid connections get filtered immediately. We can now use a \rust{for} loop in
-order to continously listen for a new TCP connection as soon as the contact to the current host is lost.
+order to continuously listen for a new TCP connection as soon as the contact to the current host is lost.
 
 As soon as a connection was established successfully, our function \rust{handle_client} is called with \rust{stream} as
-an argument. As the handling of the client can also result in errors, the \rust{expect} method is used once again to
-panic if something has failed. An alternative approach would be to check the returned value of \rust{handle_client} and
-only print the error to the command line. This would result in the server being more stable as it does not panic and
-crash if a single connection throws an error.
+an argument. Because the handling of the client can also result in errors, the \rust{expect} method is used once again
+to panic if something has failed. An alternative approach would be to check the returned value of \rust{handle_client}
+and only print the error to the command line. This would result in the server being more stable as it does not panic
+and crash if a single connection throws an error.
 
 The last missing piece to use the server is a client to connect to. A simple TCP client is implemented in
 \textcolor{teal}{Figure \ref{tcp-client}}.
@@ -174,55 +174,56 @@ loop {
     \label{tcp-client}
 \end{figure}
 
-First a connection to the server is established using the function \rust{TcpStream::connect}, which takes a \rust{&str}
-\rust{ADDRESS} as an argument. The constant \rust{ADDRESS} is similar to the constant we have used in the server and
-corresponds to the address and port of the server we want to connect to. This time no \rust{TcpListener} is needed,
-because the other host is already listening for connections and we want to establish a connection explicitly to this
-host. The returned result of the function is unwrapped using \rust{?} to return early with an error if something went
-wrong.
+First, a connection to the server is established using the function \rust{TcpStream::connect}, which takes a
+\rust{&str} \rust{ADDRESS} as an argument. The constant \rust{ADDRESS} is similar to the constant we have used in the
+server and corresponds to the address and port of the server we want to connect to. This time no \rust{TcpListener} is
+needed because the other host is already listening for connections and we want to establish a connection explicitly
+to this host. The returned \rust{Result} of the function is unwrapped using \rust{?} to return early with an error if
+something went wrong.
 
-In order to let the user send messages from the command line, we have to use the struct \rust{std::io::Stdin} which you
-can get by calling the function \rust{std::io::stdin}. To prevent repeated calls of this function, it is called once in
-the beginning and saved in a immutable variable.
+In order to let the user send messages from the command line, we have to use the \rust{struct} \rust{std::io::Stdin}
+which one can get by calling the function \rust{std::io::stdin}. To prevent repeated calls of this function, it is
+called once in the beginning and saved in an immutable variable.
 
-After that the program enters a loop and keeps iterating until the connection was closed. In \textcolor{orange}{line 6}
-a mutable \rust{String} called \rust{buf} is created. The variable is used to save the console input of the user and
-then send it to the server.
+After that, the program enters a loop and keeps iterating until the connection was closed. In
+\textcolor{orange}{line 6} a mutable \rust{String} called \rust{buf} is created. The variable is used to save the
+console input of the user and then send it to the server.
 
 In \textcolor{orange}{line 8} the method \rust{read_line} of \rust{stdin} receives the next line from the user. It
 takes a mutable reference to the buffer into which the input should be read as an argument and returns a \rust{Result}
 corresponding to whether reading was successful.
 
 If so, the content of \rust{buf} is trimmed to remove leading and trailing whitespaces and checked whether it matches
-"exit". In such case, the \rust{shutdown} method of the stream is used to close the current connection and the program
-breaks out of the loop. Otherwise the input string is converted into a byte slice using the \rust{String}-method
-\rust{as_bytes}. The method \rust{write_all} of the stream takes this slice as an argument and sends it directly to the
-server. As this is another operation which might fail due to network issues, it again returns a \rust{Result} which is
-unwrapped through the \rust{expect} method.
+"exit". In such a case, the \rust{shutdown} method of the stream is used to close the current connection and the
+program breaks out of the loop. Otherwise, the input \rust{String} is converted into a byte slice using the
+\rust{String}-method \rust{as_bytes}. The method \rust{write_all} of the stream takes this slice as an argument and
+sends it directly to the server. As this is another operation that might fail due to network issues, it again returns
+a \rust{Result} which is unwrapped through the \rust{expect} method.
 
-If reading from the command line has failed, the program handles it exactly the same way as the server handles read
-failure from the stream: The error gets printed to the error output and the program tries to shut down the current
-stream. If this was successful, it breaks out of the loop resulting in the program terminating.
+If reading from the command line has failed, the program handles it the same way as the server handles read failure
+from the stream: The error gets printed to the error output and the program tries to shut down the current stream. If
+this was successful, it breaks out of the loop resulting in the program terminating.
 
-When using TCP it can be difficult to detect whether the connection to the server was lost, as the client is only
-sending and not receiving any information. This means if we try to close the connection from the server side, the
-client will not terminate immediately but usually only after sending a message and not receiving an ACK from the server
-in time. A way to resolve this problem would be to implement some kind of ping between the client and the server in a
-certain timeframe to check if the other side is still connected. If the time with no ping received exceeds this
-timeframe, the connection was probably lost and the stream can be closed.
+When handling a TCP connection in Rust, it can be difficult to detect whether the connection to the server was lost,
+because the client is only sending and not receiving any information. This means if we try to close the connection from
+the server side, the client will not terminate immediately but usually only after sending a message and not receiving
+an ACK from the server in time. A way to resolve this problem would be to implement some kind of ping between the
+client and the server in a certain timeframe to check if the other side is still connected. If the time with no ping
+received exceeds this timeframe, the connection was probably lost and the stream can be closed.
 
 \subsection{UDP communication}
-The User Datagram Protocol (UDP) is less reliable than the Transmission Control Protocol. Differently to TCP, UDP tries
-to send messages to other programs with a minimal amount of protocol mechanism. This means it offers no protection
+The User Datagram Protocol (UDP) is less reliable than the Transmission Control Protocol. Different from TCP, UDP tries
+to send messages to other programs with a minimal amount of protocol mechanism. This means that it offers no protection
 against package duplication and does neither check whether the sent data arrived nor in what order. As a consequence,
 it is unnecessary to listen for new hosts and actively establish a connection to another host before sending any data.
-UDP is commonly used, if you do not need reliable delivery of streams and small amounts of package loss do not matter.
-A typical example for UDP applications would be media streaming. \cite{RFC0768}
+UDP is commonly used if reliable delivery of streams and small amounts of package loss does not matter. A typical
+example for UDP applications would be media streaming. \cite{RFC0768}
 
-When trying to communicate over UDP in Rust, one is able to use the struct \rust{std::net::UdpSocket}. It provides
-methods to bind to an address, send and receive data. As we do not need a server to listen for new connections, the
-following example will be split into a sender who sends data and a receiver who receives these messages.
-\textcolor{teal}{Figure \ref{udp-receiver}} gives an example of how the code on the receiving end could look like.
+When trying to communicate over UDP in Rust, one is able to use the \rust{struct} \rust{std::net::UdpSocket}. It
+provides methods to bind to an address, to send and receive data. As we do not need a server to listen for new
+connections, the following example will be split into a sender who sends data and a receiver who receives these
+messages. \textcolor{teal}{Figure \ref{udp-receiver}} gives an example of how the code on the receiving end could look
+like.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -249,28 +250,28 @@ loop {
     \label{udp-receiver}
 \end{figure}
 
-In the beginning a socket is created by calling the \rust{bind} function and giving the address the socket should listen
-to as an argument. The result is unwrapped using \rust{?} and then moved into a variable. After that the program keeps
-looping until an error occurs or it is closed explicitly. As there are no active connections between two hosts, the
-socket cannot close when a connection is lost. Another difference to using TCP is that the socket is able to listen to
-incoming messages of multiple hosts.
+In the beginning, a socket is created by calling the \rust{bind} function and giving the address the socket should
+listen to as an argument. The \rust{Result} is unwrapped using \rust{?} and then moved into a variable. After that, the
+program keeps looping until an error occurs or it is closed explicitly. As there are no active connections between two
+hosts, the socket cannot close when a connection is lost. Another difference to using TCP is that the socket is able to
+listen to incoming messages of multiple hosts.
 
 When trying to receive an incoming message, we first have to initialize a buffer to store the data of the other host.
 A \rust{UdpSocket} does not implement the trait \rust{std::io::Read}. A trait in Rust defines some kind of behavior,
-similar to interfaces in other languages. This means you cannot create a \rust{BufReader} instance in order to read the
-data from the socket. Instead, we have to read the messages as bytes and then parse them into a \rust{String} later.
-The variable \rust{buf} in this case is a byte slice of length \rust{1500}. If you know the size of the data
-beforehand, you can adjust the buffer length according to this, but as we do not know anything about the data we are
-going to receive, this example uses the size of a typical UDP Maximum Transmission Unit (MTU). If a message is larger
-than the buffer, it is going truncated.
+similar to interfaces in other languages. This means it is not possible to create a \rust{BufReader} instance in order
+to read the data from the socket. Instead, we have to read the messages as bytes and then parse them into a
+\rust{String} later. The variable \rust{buf}, in this case, is a byte slice of length \rust{1500}. If the size of the
+data is known beforehand, one can adjust the buffer length according to this, but as we do not know anything about the
+data we are going to receive, this example uses the size of a typical UDP Maximum Transmission Unit (MTU). If a message
+is larger than the buffer, it is going truncated.
 
 In \textcolor{orange}{line 6} the method \rust{recv_from} is used to read the next arriving package into \rust{buf}. If
-the call is successful, the program enters the first match arm, tries to convert the byte slice into a \rust{&str} and
+the call is successful, the program enters the first match arm, tries to convert the byte slice into a \rust{&str}, and
 panics in case of a failure using the \rust{expect} method. After that, the message gets printed to the command line.
 If the call has failed, the program prints the error and breaks out of the loop.
 
-To send data to this receiver, you cannot just use the TCP client implemented before as it uses a different protocol. In
-\textcolor{teal}{Figure \ref{udp-sender}} you can see a small implementation of an UDP sender.
+To send data to this receiver, using the TCP client implemented before will not work as it uses a different protocol. In
+\textcolor{teal}{Figure \ref{udp-sender}} there is a small implementation of a UDP sender.
 
 \begin{figure}[ht]
     \begin{minted}{Rust}
@@ -305,17 +306,17 @@ loop {
 \end{figure}
 
 Here the socket is not bound to the address of the host we want to send messages to. Rather the \rust{bind} function is
-given the static address "0.0.0.0:0" due to the UDP protocol. As there is no set connection between two hosts, our
-sender needs its own address and port in order to receive answers from the other host. By giving \rust{bind} the static
+given the static address "0.0.0.0:0" due to the UDP protocol. As there is no set connection between the two hosts, our
+sender needs its address and port in order to receive answers from the other host. By giving \rust{bind} the static
 address of "0.0.0.0:0" as an argument, we implicitly state that the host should use its own IP address and choose any
-free, available port it is allowed to use. Setting the port explicitly is an alternative method, although this risks
-choosing a port which is already used by another program.
+free, available port which it is allowed to use. Setting the port explicitly is an alternative method, although this
+risks choosing a port that is already used by another program.
 
-From this point on, the sender is very similar to the TCP client: In a continous loop the user input from the command
+From this point on, the sender is very similar to the TCP client: In a continuous loop the user input from the command
 line is written into \rust{buf}.
 
 If the reading is successful, the input is first trimmed and then checked whether it matches "exit". In this case, the
-program simply breaks out of the loop. We do not have to shutdown any stream here, as there is no connection in the
+program simply breaks out of the loop. We do not have to shut down any stream here, as there is no connection in the
 first place. Otherwise, the input is converted into bytes using the method \rust{as_bytes} and then sent to the other
 host by calling \rust{send_to} on the socket, giving it the byte slice and the address of the other host as arguments.
-The result of the method call is again unwrapped using \rust{expect} to panic in case of an error.
+The \rust{Result} of the method call is unwrapped using \rust{expect} to panic in case of an error.
