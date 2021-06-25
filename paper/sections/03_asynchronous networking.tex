@@ -146,7 +146,7 @@ tokio::spawn(async move {
         match reader
             .read_line(&mut buf).await {
             Ok(0) => break,
-            Ok(size) =>*print!("{}", buf),
+            Ok(_) =>*print!("{}", buf),
             Err(e) => {
                 eprintln!("{}", e);
                 stream

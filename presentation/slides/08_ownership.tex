@@ -27,8 +27,8 @@
         \item Borrowing:
         \begin{enumerate}
             \item No complete access is needed \so a reference can be borrowed
-            \item There are also mutable reference: Only one is allowed at the same time
-            \item Useful whne working with network applications (prevents the occurence of data races if a thread tires
+            \item There are also mutable references: Only one is allowed at the same time
+            \item Useful when working with network applications (prevents the occurence of data races if a thread tries
                   to read or write to a buffer while another thread is already writing to it)
             \item We are not going to take a look at \rust{std::sync::Arc}
         \end{enumerate}

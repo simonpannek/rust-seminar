@@ -5,7 +5,7 @@
             \onslide<1>
             \begin{minted}{Rust}
             tokio::spawn(async move {
-                let mut reader =*BufReader::new(&mut stream);
+                let mut reader = BufReader::new(&mut stream);
             
                 loop {
                     let mut buf = String::new();
@@ -23,7 +23,7 @@
             \begin{minted}{Rust}
             match reader.read_line(&mut buf).await {
                 Ok(0) => break,
-                Ok(size) => print!("{}", buf),
+                Ok(_) => print!("{}", buf),
                 Err(e) => {
                     eprintln!("{}", e);
                     stream
